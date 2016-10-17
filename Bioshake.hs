@@ -73,6 +73,7 @@ class Pathable a => IsFastQ a
 class Pathable a => IsPairedEnd a
 class Pathable a => IsSam a
 class Pathable a => IsBam a
+class Pathable a => IsBcf a
 class Pathable a => IsSorted a
 class Pathable a => IsVCF a
 

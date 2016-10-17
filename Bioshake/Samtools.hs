@@ -11,6 +11,7 @@ data Sam2Bam = Sam2Bam
 data Bam2Sam = Bam2Sam
 data DeDup = DeDup
 data MappedOnly = MappedOnly
+data Pileup = Pileup
 
 instance Pathable a => Pathable (a :-> SortSam) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sorted.bam"]
@@ -24,6 +25,8 @@ instance Pathable a => Pathable (a :-> MappedOnly) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".mapped_only.bam"]
 instance Pathable a => Pathable (a :-> DeDup) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".dedup.bam"]
+instance Pathable a => Pathable (a :-> Pileup) where
+  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".pileup.bcf"]
 
 sortSam = SortSam
 sortBam = SortBam
@@ -42,6 +45,8 @@ instance Pathable a => IsBam (a :-> MappedOnly)
 
 instance Pathable a => IsBam (a :-> DeDup)
 instance Pathable a => IsSorted (a :-> DeDup)
+
+instance Pathable a => IsBcf (a :-> Pileup)
 
 instance IsSam a => Buildable a SortSam where
   build _ (paths -> [input]) [out] =
@@ -66,3 +71,7 @@ instance IsSam a => Buildable a MappedOnly where
 instance (IsSorted a, IsPairedEnd a, IsBam a) => Buildable a DeDup where
   build _ (paths -> [input]) [out] =
     cmd "samtools rmdup" ["-s", input] ["-o", out]
+
+instance (Referenced a, IsSam a) => Buildable a Pileup where
+  build _ a@(paths -> [input]) [out] =
+    cmd "samtools mpileup -ug" ["-f", getRef a] [input] ["-o", out]
