@@ -7,8 +7,7 @@ import Development.Shake.FilePath
 import Data.Maybe
 import System.IO.Temp
 
-data Call = Call { reference :: FilePath
-                 , jar :: FilePath
+data Call = Call { jar :: FilePath
                  , threads :: Int
                  , resource :: Maybe Resource}
 
@@ -20,18 +19,18 @@ instance Pathable a => Pathable (a :-> Call) where
 instance Pathable a => Pathable (a :-> ToBEDpe) where
   paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "gridss" <.> status <.> "bedpe" | status <- ["unfilt", "filt"]]
 
-call ref jar = Call ref jar 0 Nothing
+call jar = Call jar 0 Nothing
 toBEDpe = ToBEDpe
 
-instance (IsSorted a, IsBam a) => Buildable a Call where
-  build params (paths -> [input]) [out] =
+instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where
+  build params a@(paths -> [input]) [out] =
     let cmd' =
           liftIO . withSystemTempDirectory "gridss" $ \tmpDir ->
             cmd "java -ea -Xmx16g"
               ["-cp", jar params, "au.edu.wehi.idsv.Idsv"]
               ["TMP_DIR=", tmpDir]
               ["WORKING_DIR=", tmpDir]
-              ["REFERENCE=", reference params]
+              ["REFERENCE=", getRef a]
               ["INPUT=", input]
               ["IC=1"]
               ["OUTPUT=", out]
@@ -42,7 +41,7 @@ instance (IsSorted a, IsBam a) => Buildable a Call where
 
 instance Pathable a => IsVCF (a :-> Call)
 
-instance IsVCF a => Buildable a ToBEDpe where
+instance (IsPairedEnd a, IsVCF a) => Buildable a ToBEDpe where
   build (ToBEDpe jar) (paths -> [input]) [outUnfilt, outFilt] =
     cmd "java -ea -Xmx16g"
       ["-cp", jar, "au.edu.wehi.idsv.Idsv.VcfBreakendToBedpe"]

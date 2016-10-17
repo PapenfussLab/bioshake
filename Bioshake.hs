@@ -76,6 +76,8 @@ class Pathable a => IsBam a
 class Pathable a => IsSorted a
 class Pathable a => IsVCF a
 
+instance (Pathable (a :-> b), IsPairedEnd a) => IsPairedEnd (a :-> b)
+
 -- Hard naming outputs
 data Out = Out [FilePath]
 
@@ -86,3 +88,11 @@ instance Pathable (a :-> Out) where
 
 instance Pathable a => Buildable a Out where
   build _ (paths -> inputs) = zipWithM_ ((liftIO .) . copyFile) inputs
+
+-- Referenced (for track reference genomes automatically)
+
+class Referenced a where
+  getRef :: a -> FilePath
+
+instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
+  getRef (a :-> _) = getRef a

@@ -13,7 +13,6 @@ instance Pathable a => Pathable (a :-> Trim) where
   paths (a :-> _) = map (\p -> "tmp" </> takeFileName p <.> "trimmed.fastq.gz") $ paths a
 
 instance Pathable a => IsFastQ (a :-> Trim)
-instance (Pathable a, IsPairedEnd a) => IsPairedEnd (a :-> Trim)
 
 instance IsFastQ a => Buildable a Trim where
   build (Trim three') (paths -> [input]) [out] =
