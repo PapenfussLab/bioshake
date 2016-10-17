@@ -1,26 +1,22 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators #-}
-module Bioshake.Samtools(sortSam, sortBam, sam2bam, dedup) where
+{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, KindSignatures, GADTs #-}
+module Bioshake.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup) where
 
 import Bioshake
 import Development.Shake
 import Development.Shake.FilePath
+import GHC.TypeLits
 
-data SortSam = SortSam
-data SortBam = SortBam
-data Sam2Bam = Sam2Bam
-data Bam2Sam = Bam2Sam
+data Sort :: Symbol -> * where
+  Sort :: Sort a
 data DeDup = DeDup
 data MappedOnly = MappedOnly
 data Pileup = Pileup
 
-instance Pathable a => Pathable (a :-> SortSam) where
+data Convert :: Symbol -> Symbol -> * where
+  Convert :: Convert a b
+
+instance Pathable a => Pathable (a :-> Sort t) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sorted.bam"]
-instance Pathable a => Pathable (a :-> SortBam) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sorted.bam"]
-instance Pathable a => Pathable (a :-> Sam2Bam) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "bam"]
-instance Pathable a => Pathable (a :-> Bam2Sam) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sam"]
 instance Pathable a => Pathable (a :-> MappedOnly) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".mapped_only.bam"]
 instance Pathable a => Pathable (a :-> DeDup) where
@@ -28,39 +24,44 @@ instance Pathable a => Pathable (a :-> DeDup) where
 instance Pathable a => Pathable (a :-> Pileup) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".pileup.bcf"]
 
-sortSam = SortSam
-sortBam = SortBam
-sam2bam = Sam2Bam
-bam2sam = Bam2Sam
+instance Pathable a => Pathable (a :-> Convert s "sam") where
+  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sam"]
+instance Pathable a => Pathable (a :-> Convert s "bam") where
+  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "bam"]
+
+sort = Sort
+sortBam = Sort :: Sort "bam"
+sortSam = Sort :: Sort "sam"
 mappedOnly = MappedOnly
 dedup = DeDup
+convert = Convert
+sam2bam = Convert :: Convert "sam" "bam"
+bam2sam = Convert :: Convert "bam" "sam"
 
-instance Pathable a => IsSorted (a :-> SortSam)
-instance Pathable a => IsSorted (a :-> SortBam)
-instance Pathable a => IsBam (a :-> SortSam)
-instance Pathable a => IsBam (a :-> SortBam)
-instance Pathable a => IsBam (a :-> Sam2Bam)
-instance Pathable a => IsSam (a :-> Bam2Sam)
+instance Pathable a => IsSorted (a :-> Sort t)
+instance Pathable a => IsBam (a :-> Sort t)
 instance Pathable a => IsBam (a :-> MappedOnly)
+instance Pathable a => IsBam (a :-> Convert s "bam")
+instance Pathable a => IsSam (a :-> Convert s "sam")
 
 instance Pathable a => IsBam (a :-> DeDup)
 instance Pathable a => IsSorted (a :-> DeDup)
 
 instance Pathable a => IsBcf (a :-> Pileup)
 
-instance IsSam a => Buildable a SortSam where
+instance IsSam a => Buildable a (Sort "sam") where
   build _ (paths -> [input]) [out] =
     cmd Shell "samtools view -bS" [input] "|" "samtools sort -" ["-o", out]
 
-instance IsBam a => Buildable a SortBam where
+instance IsBam a => Buildable a (Sort "bam") where
   build _ (paths -> [input]) [out] =
     cmd "samtools sort" [input] ["-o", out]
 
-instance IsSam a => Buildable a Sam2Bam where
+instance IsSam a => Buildable a (Convert "sam" "bam") where
   build _ (paths -> [input]) [out] =
     cmd "samtools view -bS" [input] ["-o", out]
 
-instance IsSam a => Buildable a Bam2Sam where
+instance IsBam a => Buildable a (Convert "bam" "sam") where
   build _ (paths -> [input]) [out] =
     cmd "samtools view -h" [input] ["-o", out]
 
