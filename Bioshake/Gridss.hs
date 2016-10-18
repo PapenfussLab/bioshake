@@ -10,9 +10,10 @@ import System.IO.Temp
 
 instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where
   build params a@(paths -> [input]) [out] =
-    let cmd' =
+    let mem = threads params * 2 + 8
+        cmd' =
           liftIO . withSystemTempDirectory "gridss" $ \tmpDir ->
-            cmd "java -ea -Xmx16g"
+            cmd "java -ea" (concat ["-Xmx", show mem, "g"])
               ["-cp", jar params, "au.edu.wehi.idsv.Idsv"]
               ["TMP_DIR=", tmpDir]
               ["WORKING_DIR=", tmpDir]
@@ -27,7 +28,7 @@ instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where
 
 instance (IsPairedEnd a, IsVCF a) => Buildable a ToBEDpe where
   build (ToBEDpe jar) (paths -> [input]) [outUnfilt, outFilt] =
-    cmd "java -ea -Xmx16g"
+    cmd "java -ea -Xmx10g"
       ["-cp", jar, "au.edu.wehi.idsv.Idsv.VcfBreakendToBedpe"]
       ["INPUT=" ++ input]
       ["OUTPUT=" ++ outUnfilt]

@@ -12,8 +12,9 @@ import Data.Implicit
 
 instance (Implicit_ Config, Referenced a, IsSorted a, IsBam a) => Buildable a Call where
   build params a@(paths -> [input]) [out] =
+    let mem = threads params * 2 + 8 in
     liftIO . withSystemTempDirectory "gridss" $ \tmpDir ->
-      submit "java -ea -Xmx16g"
+      submit "java -ea" (concat ["-Xmx", show mem, "g"])
         ["-cp", jar params, "au.edu.wehi.idsv.Idsv"]
         ["TMP_DIR=", tmpDir]
         ["WORKING_DIR=", tmpDir]
@@ -24,11 +25,13 @@ instance (Implicit_ Config, Referenced a, IsSorted a, IsBam a) => Buildable a Ca
         ["WORKER_THREADS=", show (threads params)]
         (param_ :: Config)
         (CPUs (threads params))
+        (Mem $ gb mem)
 
-instance (IsPairedEnd a, IsVCF a) => Buildable a ToBEDpe where
+instance (Implicit_ Config, IsPairedEnd a, IsVCF a) => Buildable a ToBEDpe where
   build (ToBEDpe jar) (paths -> [input]) [outUnfilt, outFilt] =
-    submit "java -ea -Xmx16g"
+    submit "java -ea -Xmx10g"
       ["-cp", jar, "au.edu.wehi.idsv.Idsv.VcfBreakendToBedpe"]
       ["INPUT=" ++ input]
       ["OUTPUT=" ++ outUnfilt]
       ["OUTPUT_FILTERED=" ++ outFilt]
+      (param_ :: Config)
