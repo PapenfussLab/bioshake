@@ -9,6 +9,10 @@ import Development.Shake hiding (doesFileExist)
 import System.Directory (doesFileExist, getCurrentDirectory)
 import System.IO.Temp
 import System.Posix.Files
+import Data.Implicit
+import Data.Default.Class (Default, def)
+import qualified Data.Map as M
+import Data.Maybe
 
 type ModuleName = String
 type Queue = String
@@ -21,11 +25,16 @@ data TOption = Mem Int
              | TStdout FilePath
              deriving (Eq, Show)
 
+newtype Config = Config [TOption]
+
+instance Default Config where def = Config [Queue "small", Mem (gb 10), CPUs 1]
+
 class TArgs a where cmdArgs :: [Either TOption String] -> a
 instance (Args a, TArgs r) => TArgs (a -> r) where cmdArgs a r = cmdArgs $ a ++ args r
 
-instance TArgs (Action ()) where
-  cmdArgs args = liftIO . withTempDirectory "." "qsub" $ \tmpDir -> do
+instance TArgs (Action ()) where cmdArgs = liftIO . cmdArgs
+instance TArgs (IO ()) where
+  cmdArgs args = withTempDirectory "." "qsub" $ \tmpDir -> do
       let scriptfile = tmpDir </> "run.sh"
           okfile = tmpDir </> "run.sh.ok"
       writeFile scriptfile $ script okfile
@@ -52,7 +61,13 @@ instance TArgs (Action ()) where
       stdout = unStdout <$> find isStdout options
 
       exec = unwords $ rights args
-      resflags = map toFlag options
+      dedupOpts = M.elems . M.fromList $ mapMaybe key options
+        where
+          key a@(Mem _) = Just ("mem", a)
+          key a@(CPUs _) = Just ("cpus", a)
+          key a@(Queue _) = Just ("queue", a)
+          key _ = Nothing
+      resflags = map toFlag dedupOpts
         where
           toFlag (Mem n) = "-l mem=" ++ show n
           toFlag (CPUs n) = "-l nodes=1:ppn=" ++ show n
@@ -63,6 +78,7 @@ class Args a where args :: a -> [Either TOption String]
 instance Args String where args = map Right . words
 instance Args [String] where args = map Right
 instance Args TOption where args = return . Left
+instance Args Config where args (Config ls) = map Left ls
 
 type a |-> b = a
 

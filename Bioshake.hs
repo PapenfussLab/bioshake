@@ -76,6 +76,7 @@ class Pathable a => IsBam a
 class Pathable a => IsBcf a
 class Pathable a => IsSorted a
 class Pathable a => IsVCF a
+class Pathable a => IsBed a
 
 instance (Pathable (a :-> b), IsPairedEnd a) => IsPairedEnd (a :-> b)
 

@@ -2,17 +2,9 @@
 module Bioshake.Cutadapt(trim) where
 
 import Bioshake
+import Bioshake.Internal.Cutadapt
 import Development.Shake
 import Development.Shake.FilePath
-
-data Trim = Trim Seq
-
-trim = Trim
-
-instance Pathable a => Pathable (a :-> Trim) where
-  paths (a :-> _) = map (\p -> "tmp" </> takeFileName p <.> "trimmed.fastq.gz") $ paths a
-
-instance Pathable a => IsFastQ (a :-> Trim)
 
 instance IsFastQ a => Buildable a Trim where
   build (Trim three') (paths -> [input]) [out] =

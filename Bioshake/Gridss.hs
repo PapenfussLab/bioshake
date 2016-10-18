@@ -2,25 +2,11 @@
 module Bioshake.Gridss(call, toBEDpe, Call(..)) where
 
 import Bioshake
+import Bioshake.Internal.Gridss
 import Development.Shake
 import Development.Shake.FilePath
 import Data.Maybe
 import System.IO.Temp
-
-data Call = Call { jar :: FilePath
-                 , threads :: Int
-                 , resource :: Maybe Resource}
-
-data ToBEDpe = ToBEDpe FilePath
-
-instance Pathable a => Pathable (a :-> Call) where
-  paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "gridss.vcf"]
-
-instance Pathable a => Pathable (a :-> ToBEDpe) where
-  paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "gridss" <.> status <.> "bedpe" | status <- ["unfilt", "filt"]]
-
-call jar = Call jar 0 Nothing
-toBEDpe = ToBEDpe
 
 instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where
   build params a@(paths -> [input]) [out] =
@@ -38,8 +24,6 @@ instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where
     in case resource params of
          Just res -> withResource res (threads params) cmd'
          Nothing -> cmd'
-
-instance Pathable a => IsVCF (a :-> Call)
 
 instance (IsPairedEnd a, IsVCF a) => Buildable a ToBEDpe where
   build (ToBEDpe jar) (paths -> [input]) [outUnfilt, outFilt] =
