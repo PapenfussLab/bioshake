@@ -1,4 +1,4 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, KindSignatures, GADTs, ScopedTypeVariables #-}
 module Bioshake.Internal.Bedtools where
 
 import Bioshake
@@ -6,18 +6,18 @@ import Development.Shake
 import Development.Shake.FilePath
 import Data.Maybe
 import System.IO.Temp
+import GHC.TypeLits
+import Data.Proxy
 
-data BAM2BED = BAM2BED FilePath
-data BAM2BEDpe = BAM2BEDpe FilePath
+data Convert :: Symbol -> Symbol -> * where
+  Convert :: Convert s t
 
-instance Pathable a => Pathable (a :-> BAM2BED) where
-  paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "bamtools.bed"]
+convert = Convert
 
-instance Pathable a => Pathable (a :-> BAM2BEDpe) where
-  paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "bamtools.bedpe"]
+instance (KnownSymbol t, Pathable a) => Pathable (a :-> Convert s t) where
+  paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "bamtools" <.> symbolVal (Proxy :: Proxy t)]
 
-bam2bed = BAM2BED
-bam2bedpe = BAM2BEDpe
-
-instance Pathable a => IsBed (a :-> BAM2BED)
-instance Pathable a => IsBed (a :-> BAM2BEDpe)
+instance Pathable a => IsBed (a :-> Convert s "bed")
+instance Pathable a => IsBed (a :-> Convert s "bedpe")
+instance Pathable a => IsFastQ (a :-> Convert s "fastq")
+instance Pathable a => IsBam (a :-> Convert s "bam")

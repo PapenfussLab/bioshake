@@ -45,7 +45,7 @@ instance TArgs (IO ()) where
       unless ok . error $ "job failed: " ++ exec
       return ()
     where
-      script ok = unlines $ ["#!/bin/sh"]
+      script ok = unlines $ ["#!/bin/sh", "set -e"]
                             ++ map ("module add "++) modules
                             ++ [unwords [exec, "&& touch ", ok]]
 
