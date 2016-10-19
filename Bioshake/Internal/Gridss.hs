@@ -3,10 +3,7 @@ module Bioshake.Internal.Gridss where
 
 import Bioshake
 import Bioshake.Implicit
-import Development.Shake
 import Development.Shake.FilePath
-import Data.Maybe
-import System.IO.Temp
 
 data Call = Call Threads FilePath
 data ToBEDpe = ToBEDpe FilePath

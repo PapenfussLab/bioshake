@@ -6,7 +6,6 @@ import Control.Monad.Trans.State.Strict
 import Control.Monad
 import Data.String
 import Development.Shake
-import Development.Shake.FilePath
 import qualified Data.Set as S
 import System.Directory (copyFile)
 import Bioshake.Implicit
@@ -38,13 +37,6 @@ instance (Buildable a b, Pathable a, Pathable (a :-> b), Compilable a) => Compil
         withResource param_ (threads a b) $ build b a outs
       put (outs `S.insert` set)
     compile a
-
-debugPipeline :: (Buildable a b, Pathable a, Pathable (a :-> b)) => a :-> b -> IO ()
-debugPipeline pipe@(a :-> b) = do
-  let outs = paths pipe
-  putStr $ show $ paths a
-  putStr " |> "
-  print outs
 
 class Pathable a where
   paths :: a -> [FilePath]
@@ -91,7 +83,7 @@ data Out = Out [FilePath]
 out = Out
 
 instance Pathable (a :-> Out) where
-  paths (a :-> Out outs) = outs
+  paths (_ :-> Out outs) = outs
 
 instance Pathable a => Buildable a Out where
   build _ (paths -> inputs) = zipWithM_ ((liftIO .) . copyFile) inputs

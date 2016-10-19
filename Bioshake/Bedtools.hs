@@ -4,7 +4,6 @@ module Bioshake.Bedtools(convert) where
 import Bioshake
 import Bioshake.Internal.Bedtools
 import Development.Shake
-import Data.Implicit
 
 instance IsBam a => Buildable a (Convert "bam" "bed") where
   build params (paths -> [input]) [out] =

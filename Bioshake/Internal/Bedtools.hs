@@ -2,10 +2,7 @@
 module Bioshake.Internal.Bedtools where
 
 import Bioshake
-import Development.Shake
 import Development.Shake.FilePath
-import Data.Maybe
-import System.IO.Temp
 import GHC.TypeLits
 import Data.Proxy
 

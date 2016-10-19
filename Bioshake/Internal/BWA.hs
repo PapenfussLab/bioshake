@@ -3,8 +3,6 @@ module Bioshake.Internal.BWA where
 
 import Bioshake
 import Data.List
-import Data.Maybe
-import Development.Shake
 import Development.Shake.FilePath
 import Bioshake.Implicit
 

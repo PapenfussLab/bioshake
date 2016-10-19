@@ -4,9 +4,7 @@ module Bioshake.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, b
 import Bioshake
 import Development.Shake
 import Development.Shake.FilePath
-import GHC.TypeLits
 import Bioshake.Internal.Samtools
-import Bioshake.Implicit
 
 instance IsSam a => Buildable a (Sort "sam") where
   threads _ (Sort (Threads t)) = t

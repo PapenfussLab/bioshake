@@ -2,9 +2,7 @@
 module Bioshake.Internal.GATK where
 
 import Bioshake
-import Development.Shake
 import Development.Shake.FilePath
-import System.IO.Temp
 
 data ReQual = ReQual FilePath
 

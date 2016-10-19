@@ -2,7 +2,6 @@
 module Bioshake.Internal.Cutadapt where
 
 import Bioshake
-import Development.Shake
 import Development.Shake.FilePath
 
 data Trim = Trim Seq

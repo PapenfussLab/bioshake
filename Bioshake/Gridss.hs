@@ -4,9 +4,6 @@ module Bioshake.Gridss(call, toBEDpe, Call(..)) where
 import Bioshake
 import Bioshake.Internal.Gridss
 import Development.Shake
-import Development.Shake.FilePath
-import Data.Maybe
-import Bioshake.Implicit
 import System.IO.Temp
 
 instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where

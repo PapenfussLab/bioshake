@@ -2,12 +2,10 @@
 module Bioshake.Internal.Samtools where
 
 import Bioshake
-import Development.Shake
 import Development.Shake.FilePath
 import GHC.TypeLits
 import Data.Proxy
 import Bioshake.Implicit
-import Prelude hiding (sort)
 
 data Sort :: Symbol -> * where
   Sort :: Threads -> Sort a

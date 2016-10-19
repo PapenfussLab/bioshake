@@ -4,7 +4,6 @@ module Bioshake.Cutadapt(trim) where
 import Bioshake
 import Bioshake.Internal.Cutadapt
 import Development.Shake
-import Development.Shake.FilePath
 
 instance IsFastQ a => Buildable a Trim where
   build (Trim three') (paths -> [input]) [out] =
