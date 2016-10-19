@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, TypeOperators, FlexibleContexts, GADTs, FlexibleInstances, UndecidableInstances, ViewPatterns, ScopedTypeVariables #-}
+{-# LANGUAGE MultiParamTypeClasses, TypeOperators, FlexibleContexts, GADTs, FlexibleInstances, UndecidableInstances, ViewPatterns, ScopedTypeVariables, Rank2Types #-}
 module Bioshake where
 
 import Control.Monad.Trans
@@ -9,20 +9,24 @@ import Development.Shake
 import Development.Shake.FilePath
 import qualified Data.Set as S
 import System.Directory (copyFile)
+import Bioshake.Implicit
 
 data a :-> b where (:->) :: Buildable a b => a -> b -> a :-> b
-infixl 5 :->
+infixl 1 :->
 
 class Buildable a b where
   build :: b -> a -> [FilePath] -> Action ()
+  threads :: a -> b -> Int
+  threads _ _ = 1
 
 type Compiler = StateT (S.Set [FilePath]) Rules
 
-compileRules :: (Compilable a, Foldable t) => t a -> Rules ()
+compileRules :: (Implicit_ Resource, Compilable a, Foldable t) => t a -> Rules ()
 compileRules pipes = evalStateT (mapM_ compile pipes) mempty
 
 class Compilable a where
-  compile :: a -> Compiler ()
+  compile :: Implicit_ Resource => a -> Compiler ()
+  compile = return $ return mempty
 
 instance (Buildable a b, Pathable a, Pathable (a :-> b), Compilable a) => Compilable (a :-> b) where
   compile pipe@(a :-> b) = do
@@ -31,7 +35,7 @@ instance (Buildable a b, Pathable a, Pathable (a :-> b), Compilable a) => Compil
     when (outs `S.notMember` set) $ do
       lift $ outs &%> \_ -> do
         need (paths a)
-        build b a outs
+        withResource param_ (threads a b) $ build b a outs
       put (outs `S.insert` set)
     compile a
 
@@ -99,3 +103,13 @@ class Referenced a where
 
 instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
+
+-- For threaded config
+
+data Threads = Threads Int
+instance Default Threads where def = Threads 1
+
+bioshake :: Int -> ShakeOptions -> (Implicit_ Resource => Rules ()) -> IO ()
+bioshake n opts cont = shakeArgs opts{shakeThreads = n} $ do
+  res <- newResource "cpus" n
+  cont $~ res

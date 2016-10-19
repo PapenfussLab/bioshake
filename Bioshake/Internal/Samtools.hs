@@ -1,19 +1,22 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, KindSignatures, GADTs #-}
+{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, KindSignatures, GADTs, ScopedTypeVariables, FlexibleContexts #-}
 module Bioshake.Internal.Samtools where
 
 import Bioshake
 import Development.Shake
 import Development.Shake.FilePath
 import GHC.TypeLits
+import Data.Proxy
+import Bioshake.Implicit
+import Prelude hiding (sort)
 
 data Sort :: Symbol -> * where
-  Sort :: Sort a
+  Sort :: Threads -> Sort a
 data DeDup = DeDup
-data MappedOnly = MappedOnly
+data MappedOnly = MappedOnly Threads
 data Pileup = Pileup
 
 data Convert :: Symbol -> Symbol -> * where
-  Convert :: Convert a b
+  Convert :: Threads -> Convert a b
 
 instance Pathable a => Pathable (a :-> Sort t) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sorted.bam"]
@@ -24,19 +27,31 @@ instance Pathable a => Pathable (a :-> DeDup) where
 instance Pathable a => Pathable (a :-> Pileup) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".pileup.bcf"]
 
-instance Pathable a => Pathable (a :-> Convert s "sam") where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sam"]
-instance Pathable a => Pathable (a :-> Convert s "bam") where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "bam"]
+instance (KnownSymbol t, Pathable a) => Pathable (a :-> Convert s t) where
+  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> symbolVal (Proxy :: Proxy t)]
 
-sort = Sort
-sortBam = Sort :: Sort "bam"
-sortSam = Sort :: Sort "sam"
-mappedOnly = MappedOnly
+sort :: Implicit_ Threads => Sort s
+sort = Sort param_
+
+sortBam :: Implicit_ Threads => Sort "bam"
+sortBam = sort
+
+sortSam :: Implicit_ Threads => Sort "sam"
+sortSam = sort
+
+mappedOnly :: Implicit_ Threads => MappedOnly
+mappedOnly = MappedOnly param_
+
 dedup = DeDup
-convert = Convert
-sam2bam = Convert :: Convert "sam" "bam"
-bam2sam = Convert :: Convert "bam" "sam"
+
+convert :: Implicit_ Threads => Convert s t
+convert = Convert param_
+
+sam2bam :: Implicit_ Threads => Convert "sam" "bam"
+sam2bam = convert
+
+bam2sam :: Implicit_ Threads => Convert "bam" "sam"
+bam2sam = convert
 
 instance Pathable a => IsSorted (a :-> Sort t)
 instance Pathable a => IsBam (a :-> Sort t)

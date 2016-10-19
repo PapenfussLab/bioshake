@@ -1,4 +1,4 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators #-}
+{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, FlexibleContexts #-}
 module Bioshake.BWA(align, Align(..)) where
 
 import Bioshake
@@ -7,15 +7,13 @@ import Data.List
 import Data.Maybe
 import Development.Shake
 import Development.Shake.FilePath
+import Bioshake.Implicit
 
 instance (Referenced a, IsFastQ a) => Buildable a Align where
-  build params a@(paths -> inputs) [out] =
-    let cmd' =
-          cmd "bwa mem"
-            ["-t", show (threads params)]
-            [getRef a]
-            inputs
-            (FileStdout out)
-    in case resource params of
-         Just res -> withResource res (threads params) cmd'
-         Nothing -> cmd'
+  threads _ (Align (Threads t)) = t
+  build b a@(paths -> inputs) [out] =
+    cmd "bwa mem"
+      ["-t", show $ threads a b]
+      [getRef a]
+      inputs
+      (FileStdout out)

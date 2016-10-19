@@ -19,4 +19,12 @@ instance (Implicit_ FilePath, IsVCF a) => Buildable a (Convert "vcf" "bam") wher
 instance (Implicit_ FilePath, IsGff a) => Buildable a (Convert "gff" "bam") where build = bedtobam
 
 bedtobam params (paths -> [input]) [out] =
-    cmd "bedtools bedtobam" ["-i", input] ["-g", param_] ["-ubam"] (FileStdout out)
+  cmd "bedtools bedtobam" ["-i", input] ["-g", param_] (FileStdout out)
+
+instance IsBed a => Buildable a (Intersect "bed") where
+  build params (paths -> [input1, input2]) [out] =
+    cmd "bedtools intersect" ["-a", input1] ["-b", input2] (FileStdout out)
+
+instance IsBam a => Buildable a (Intersect "bam") where
+  build params (paths -> [input1, input2]) [out] =
+    cmd "bedtools intersect" ["-a", input1] ["-b", input2] (FileStdout out)
