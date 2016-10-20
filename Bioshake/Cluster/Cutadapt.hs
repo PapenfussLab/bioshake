@@ -2,23 +2,27 @@
 module Bioshake.Cluster.Cutadapt(trim) where
 
 import Bioshake
-import Bioshake.Cluster.Torque
 import Bioshake.Internal.Cutadapt
 import Development.Shake
-import Development.Shake.FilePath
-import Data.Implicit
+import Bioshake.Cluster.Torque
+import Bioshake.Implicit
 
-instance (Implicit_ Config, IsFastQ a) => Buildable a Trim where
-  build (Trim three') (paths -> [input]) [out] =
+trim :: Implicit_ Config => Seq -> Trim Config
+trim = Trim param_
+
+instance IsFastQ a => Buildable a (Trim Config) where
+  build (Trim config three') (paths -> [input]) [out] =
     submit "cutadapt"
       ["-a", show three']
       ["-o", out]
       [input]
-      (param_ :: Config)
-  build (Trim three') (paths -> inputs@[_, _]) [out1, out2] =
+      config
+      (CPUs 1)
+  build (Trim config three') (paths -> inputs@[_, _]) [out1, out2] =
     submit "cutadapt"
       ["-a", show three']
       ["-o", out1]
       ["-p", out2]
       inputs
-      (param_ :: Config)
+      config
+      (CPUs 1)

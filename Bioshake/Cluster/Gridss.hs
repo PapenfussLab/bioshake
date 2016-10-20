@@ -2,36 +2,41 @@
 module Bioshake.Cluster.Gridss(call, toBEDpe, Call(..)) where
 
 import Bioshake
-import Bioshake.Cluster.Torque
 import Bioshake.Internal.Gridss
 import Development.Shake
-import Development.Shake.FilePath
-import Data.Maybe
 import System.IO.Temp
-import Data.Implicit
+import Bioshake.Implicit
+import Bioshake.Cluster.Torque
 
-instance (Implicit_ Config, Referenced a, IsSorted a, IsBam a) => Buildable a Call where
-  build params a@(paths -> [input]) [out] =
-    let mem = threads params * 2 + 8 in
+call :: Implicit_ Config => FilePath -> Call Config
+call = Call param_
+
+toBEDpe :: Implicit_ Config => FilePath -> ToBEDpe Config
+toBEDpe = ToBEDpe param_
+
+instance (Referenced a, IsSorted a, IsBam a) => Buildable a (Call Config) where
+  build (Call config jar) a@(paths -> inputs) [out] =
+    let mem = t * 2 + 8
+        t = getCPUs config
+     in
     liftIO . withSystemTempDirectory "gridss" $ \tmpDir ->
       submit "java -ea" (concat ["-Xmx", show mem, "g"])
-        ["-cp", jar params, "au.edu.wehi.idsv.Idsv"]
+        ["-cp", jar, "au.edu.wehi.idsv.Idsv"]
         ["TMP_DIR=", tmpDir]
         ["WORKING_DIR=", tmpDir]
         ["REFERENCE=", getRef a]
-        ["INPUT=", input]
-        ["IC=1"]
+        (concat $ zipWith (\input ic -> ["INPUT=", input, "IC=", show ic]) inputs [1..])
         ["OUTPUT=", out]
-        ["WORKER_THREADS=", show (threads params)]
-        (param_ :: Config)
-        (CPUs (threads params))
-        (Mem $ gb mem)
+        ["WORKER_THREADS=", show t]
+        config
+        (Mem (gb mem))
 
-instance (Implicit_ Config, IsPairedEnd a, IsVCF a) => Buildable a ToBEDpe where
-  build (ToBEDpe jar) (paths -> [input]) [outUnfilt, outFilt] =
+instance (IsPairedEnd a, IsVCF a) => Buildable a (ToBEDpe Config) where
+  build (ToBEDpe config jar) (paths -> [input]) [outUnfilt, outFilt] =
     submit "java -ea -Xmx10g"
-      ["-cp", jar, "au.edu.wehi.idsv.Idsv.VcfBreakendToBedpe"]
+      ["-cp", jar, "au.edu.wehi.idsv.VcfBreakendToBedpe"]
       ["INPUT=" ++ input]
       ["OUTPUT=" ++ outUnfilt]
       ["OUTPUT_FILTERED=" ++ outFilt]
-      (param_ :: Config)
+      config
+      (CPUs 1)

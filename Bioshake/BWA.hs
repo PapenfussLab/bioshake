@@ -4,12 +4,16 @@ module Bioshake.BWA(align, Align(..)) where
 import Bioshake
 import Bioshake.Internal.BWA
 import Development.Shake
+import Bioshake.Implicit
 
-instance (Referenced a, IsFastQ a) => Buildable a Align where
+align :: Implicit_ Threads => Align Threads
+align = Align param_
+
+instance (Referenced a, IsFastQ a) => Buildable a (Align Threads) where
   threads _ (Align (Threads t)) = t
-  build b a@(paths -> inputs) [out] =
+  build (Align (Threads t)) a@(paths -> inputs) [out] =
     cmd "bwa mem"
-      ["-t", show $ threads a b]
+      ["-t", show t]
       [getRef a]
       inputs
       (FileStdout out)

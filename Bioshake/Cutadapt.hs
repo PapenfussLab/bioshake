@@ -5,13 +5,16 @@ import Bioshake
 import Bioshake.Internal.Cutadapt
 import Development.Shake
 
-instance IsFastQ a => Buildable a Trim where
-  build (Trim three') (paths -> [input]) [out] =
+trim :: Seq -> Trim ()
+trim = Trim ()
+
+instance IsFastQ a => Buildable a (Trim ()) where
+  build (Trim _ three') (paths -> [input]) [out] =
     cmd "cutadapt"
       ["-a", show three']
       ["-o", out]
       [input]
-  build (Trim three') (paths -> inputs@[_, _]) [out1, out2] =
+  build (Trim _ three') (paths -> inputs@[_, _]) [out1, out2] =
     cmd "cutadapt"
       ["-a", show three']
       ["-o", out1]

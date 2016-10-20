@@ -7,20 +7,17 @@ import Development.Shake.FilePath
 import Data.Maybe
 import System.IO.Temp
 
-data MarkDups = MarkDups FilePath
-data DeDup = DeDup FilePath
+data MarkDups c = MarkDups c FilePath
+data DeDup c = DeDup c FilePath
 
-markdups = MarkDups
-dedup = DeDup
-
-instance Pathable a => Pathable (a :-> DeDup) where
+instance Pathable a => Pathable (a :-> DeDup c) where
   paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "picard.DeDup.bam"]
 
-instance Pathable a => Pathable (a :-> MarkDups) where
+instance Pathable a => Pathable (a :-> MarkDups c) where
   paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> "picard.markdups.bam"]
 
-instance Pathable a => IsBam (a :-> MarkDups)
-instance Pathable a => IsBam (a :-> DeDup)
+instance Pathable a => IsBam (a :-> MarkDups c)
+instance Pathable a => IsBam (a :-> DeDup c)
 
-instance (Pathable a, IsSorted a) => IsSorted (a :-> MarkDups)
-instance (Pathable a, IsSorted a) => IsSorted (a :-> DeDup)
+instance (Pathable a, IsSorted a) => IsSorted (a :-> MarkDups c)
+instance (Pathable a, IsSorted a) => IsSorted (a :-> DeDup c)

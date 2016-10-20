@@ -2,20 +2,19 @@
 module Bioshake.Cluster.BWA(align, Align(..)) where
 
 import Bioshake
-import Bioshake.Cluster.Torque
 import Bioshake.Internal.BWA
-import Data.List
-import Data.Maybe
 import Development.Shake
-import Development.Shake.FilePath
-import Data.Implicit
+import Bioshake.Implicit
+import Bioshake.Cluster.Torque
 
-instance (Implicit_ Config, Referenced a, IsFastQ a) => Buildable a Align where
-  build params a@(paths -> inputs) [out] =
+align :: Implicit_ Config => Align Config
+align = Align param_
+
+instance (Referenced a, IsFastQ a) => Buildable a (Align Config) where
+  build (Align config) a@(paths -> inputs) [out] =
     submit "bwa mem"
-      ["-t", show (threads params)]
+      ["-t", show $ getCPUs config]
       [getRef a]
       inputs
       [">", out]
-      (param_ :: Config)
-      (CPUs (threads params))
+      config

@@ -5,8 +5,15 @@ import Bioshake
 import Bioshake.Internal.Gridss
 import Development.Shake
 import System.IO.Temp
+import Bioshake.Implicit
 
-instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where
+call :: Implicit_ Threads => FilePath -> Call Threads
+call = Call param_
+
+toBEDpe :: FilePath -> ToBEDpe ()
+toBEDpe = ToBEDpe ()
+
+instance (Referenced a, IsSorted a, IsBam a) => Buildable a (Call Threads) where
   threads _ (Call (Threads t) _) = t
   build (Call (Threads t) jar) a@(paths -> inputs) [out] =
     let mem = t * 2 + 8 in
@@ -20,8 +27,8 @@ instance (Referenced a, IsSorted a, IsBam a) => Buildable a Call where
         ["OUTPUT=", out]
         ["WORKER_THREADS=", show t]
 
-instance (IsPairedEnd a, IsVCF a) => Buildable a ToBEDpe where
-  build (ToBEDpe jar) (paths -> [input]) [outUnfilt, outFilt] =
+instance (IsPairedEnd a, IsVCF a) => Buildable a (ToBEDpe ()) where
+  build (ToBEDpe _ jar) (paths -> [input]) [outUnfilt, outFilt] =
     cmd "java -ea -Xmx10g"
       ["-cp", jar, "au.edu.wehi.idsv.VcfBreakendToBedpe"]
       ["INPUT=" ++ input]

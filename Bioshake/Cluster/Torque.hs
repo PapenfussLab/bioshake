@@ -9,8 +9,7 @@ import Development.Shake hiding (doesFileExist)
 import System.Directory (doesFileExist, getCurrentDirectory)
 import System.IO.Temp
 import System.Posix.Files
-import Data.Implicit
-import Data.Default.Class (Default, def)
+import Bioshake.Implicit
 import qualified Data.Map as M
 import Data.Maybe
 
@@ -26,8 +25,13 @@ data TOption = Mem Int
              deriving (Eq, Show)
 
 newtype Config = Config [TOption]
+--instance Default Config where def = Config [Queue "large", Mem (gb 10), CPUs 1]
 
-instance Default Config where def = Config [Queue "small", Mem (gb 10), CPUs 1]
+getCPUs :: Config -> Int
+getCPUs (Config ts) = foldl getCPUs' 1 ts
+  where
+    getCPUs' _ (CPUs n) = n
+    getCPUs' n _ = n
 
 class TArgs a where cmdArgs :: [Either TOption String] -> a
 instance (Args a, TArgs r) => TArgs (a -> r) where cmdArgs a r = cmdArgs $ a ++ args r

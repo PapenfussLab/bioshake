@@ -6,11 +6,8 @@ import Data.List
 import Development.Shake.FilePath
 import Bioshake.Implicit
 
-data Align = Align Threads
+data Align c = Align c
 
-align :: Implicit_ Threads => Align
-align = Align param_
-
-instance Pathable a => Pathable (a :-> Align) where
+instance Pathable a => Pathable (a :-> Align c) where
   paths (a :-> _) = ["tmp" </> intercalate "-" (map takeFileName $ paths a) <.> "bwa.sam"]
-instance Pathable a => IsSam (a :-> Align)
+instance Pathable a => IsSam (a :-> Align c)
