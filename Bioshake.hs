@@ -99,7 +99,7 @@ instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
 -- For threaded config
 
 data Threads = Threads Int
-instance Default Threads where def = Threads 1
+--instance Default Threads where def = Threads 1
 
 bioshake :: Int -> ShakeOptions -> (Implicit_ Resource => Rules ()) -> IO ()
 bioshake n opts cont = shakeArgs opts{shakeThreads = n} $ do

@@ -6,7 +6,7 @@ import Data.Either
 import Data.List
 import Development.Shake.FilePath
 import Development.Shake hiding (doesFileExist)
-import System.Directory (doesFileExist, getCurrentDirectory)
+import System.Directory (doesFileExist, getCurrentDirectory, copyFile)
 import System.IO.Temp
 import System.Posix.Files
 import Bioshake.Implicit
@@ -42,9 +42,9 @@ instance TArgs (IO ()) where
       let scriptfile = tmpDir </> "run.sh"
           okfile = tmpDir </> "run.sh.ok"
       writeFile scriptfile $ script okfile
-      setFileMode scriptfile 755
+      setFileMode scriptfile 0o755
       cwd <- getCurrentDirectory
-      unit $ cmd "qsub -I" ["-d", cwd] stdout resflags ["-x", scriptfile]
+      unit $ cmd Shell "qsub -I -d" [cwd] stdout resflags "-x" [scriptfile]
       ok <- doesFileExist okfile
       unless ok . error $ "job failed: " ++ exec
       return ()
@@ -71,7 +71,7 @@ instance TArgs (IO ()) where
           key a@(CPUs _) = Just ("cpus", a)
           key a@(Queue _) = Just ("queue", a)
           key _ = Nothing
-      resflags = map toFlag dedupOpts
+      resflags = unwords $ map toFlag dedupOpts
         where
           toFlag (Mem n) = "-l mem=" ++ show n
           toFlag (CPUs n) = "-l nodes=1:ppn=" ++ show n
