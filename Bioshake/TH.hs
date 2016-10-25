@@ -168,3 +168,4 @@ type a |-> b = a
 
 run :: CArgs a => a |-> [String]
 run = cmdArgs []
+

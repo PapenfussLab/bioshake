@@ -16,3 +16,4 @@ instance Pathable a => Pathable (a :-> ToBEDpe c) where
 
 instance Pathable a => IsVCF (a :-> Call c)
 instance Pathable a => IsBed (a :-> ToBEDpe c)
+
