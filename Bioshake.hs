@@ -12,6 +12,8 @@ module Bioshake( module Types
                , module Implicit
                , module Tags
                , Referenced(..)
+               , ignoringIOErrors
+               , withTempDirectory
                , bioshake
                , out
                , withAll) where
@@ -20,6 +22,7 @@ import           Bioshake.Cluster.Torque
 import           Bioshake.Implicit                as Implicit
 import           Bioshake.Tags                    as Tags
 import           Bioshake.Types                   as Types
+import qualified Control.Exception                as E
 import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.State.Strict
@@ -28,7 +31,9 @@ import qualified Data.Set                         as S
 import           Data.String
 import           Development.Shake
 import           Language.Haskell.TH
-import           System.Directory                 (copyFile)
+import           System.Directory                 (copyFile,
+                                                   removeDirectoryRecursive)
+import           System.IO.Temp                   (createTempDirectory)
 
 -- Referenced (for track reference genomes automatically)
 class Referenced a where
@@ -72,3 +77,12 @@ bioshake :: Int -> ShakeOptions -> (Implicit_ Resource => Rules ()) -> IO ()
 bioshake n opts cont = shakeArgs opts{shakeThreads = n} $ do
   res <- newResource "cpus" n
   cont $~ res
+
+-- Temporary files
+withTempDirectory :: FilePath -> String -> (FilePath -> Action b) -> Action b
+withTempDirectory targetDir template act = do
+  path <- liftIO $ createTempDirectory targetDir template
+  act path `actionFinally` (liftIO . ignoringIOErrors $ removeDirectoryRecursive path)
+
+ignoringIOErrors :: IO () -> IO ()
+ignoringIOErrors ioe = ioe `E.catch` (\e -> const (return ()) (e :: IOError))

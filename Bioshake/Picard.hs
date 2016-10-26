@@ -13,3 +13,4 @@ import           Development.Shake.FilePath
 
 $(makeSingleThread ''MarkDups [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildMarkDups)
 $(makeSingleThread ''DeDup [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildDeDup)
+$(makeSingleThread ''FixMates [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildFixMates)

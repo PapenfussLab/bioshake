@@ -1,16 +1,29 @@
-{-# LANGUAGE TemplateHaskell, TypeOperators, TypeSynonymInstances, FlexibleInstances #-}
-
+{-# LANGUAGE DeriveFunctor        #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE StandaloneDeriving   #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 module Bioshake.TH where
 
-import Language.Haskell.TH
-import Bioshake
-import Data.List.Split
-import Data.Char
-import Control.Monad
-import Development.Shake (cmd, CmdOption(Shell))
-import Bioshake.Cluster.Torque (Config, submit, TOption(CPUs), getCPUs)
-import Bioshake.Implicit(Implicit_, param_)
-import Data.List
+import           Bioshake
+import           Bioshake.Cluster.Torque  (Config, TOption (CPUs), getCPUs,
+                                           submit)
+import           Bioshake.Implicit        (Implicit_, param_)
+import           Control.Monad
+import           Control.Monad.Trans
+import           Control.Monad.Trans.Free
+import           Data.Char
+import           Data.Either
+import           Data.List
+import           Data.List.Split
+import           Data.Maybe
+import           Development.Shake        (Action (..), CmdOption (Shell),
+                                           actionFinally, cmd)
+import           Language.Haskell.TH
+import           System.Directory         (removeDirectoryRecursive)
+import           System.IO.Temp           (createTempDirectory)
 
 makeSingleTypes :: Name -> [Name] -> [Name] -> DecsQ
 makeSingleTypes ty outtags transtags = do
@@ -76,7 +89,7 @@ makeSingleThread ty tags fun = do
   inputs <- newName "inputs"
   out <- newName "out"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (TupleT 0))) [FunD 'build [Clause [VarP a,VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'cmd) (ConE 'Shell)) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT ListT (ConT ''String))))) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (TupleT 0))) [FunD 'build [Clause [VarP a,VarP inputs,VarP out] (NormalB (AppE (VarE 'withCmd) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []]]
 
   return [constructor, build]
 
@@ -99,7 +112,7 @@ makeSingleCluster ty tags fun = do
   out <- newName "out"
   config <- newName "config"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Config))) [FunD 'build [Clause [AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP)),VarP inputs,VarP out] (NormalB (AppE (AppE (AppE (VarE 'submit) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT ListT (ConT ''String)))) (VarE config)) (AppE (ConE 'CPUs) (LitE (IntegerL 1))))) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Config))) [FunD 'build [Clause [AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP)),VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config),AppE (ConE 'Right) (AppE (ConE 'CPUs) (LitE (IntegerL 1)))])) ) []]]
 
   return [constructorSig, constructor, build]
 
@@ -125,7 +138,7 @@ makeThreaded ty tags fun = do
   out <- newName "out"
   t <- newName "t"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Threads))) [FunD 'build [Clause [AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP)), VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'cmd) (ConE 'Shell)) (SigE (AppE (AppE (AppE (AppE (VarE fun) (VarE t)) (VarE a)) (VarE inputs)) (VarE out)) (AppT ListT (ConT ''String))))) []], FunD 'threads [Clause [WildP, AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP))] (NormalB (VarE t)) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Threads))) [FunD 'build [Clause [AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP)), VarP inputs,VarP out] (NormalB (AppE (VarE 'withCmd) (SigE (AppE (AppE (AppE (AppE (VarE fun) (VarE t)) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []], FunD 'threads [Clause [WildP, AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP))] (NormalB (VarE t)) []]]
 
   return [constructorSig, constructor, build]
 
@@ -149,7 +162,7 @@ makeCluster ty tags fun = do
   out <- newName "out"
   config <- newName "config"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Config))) [FunD 'build [Clause [AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP)),VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'submit) (SigE (AppE (AppE (AppE (AppE (VarE fun) (AppE (VarE 'getCPUs) (VarE config))) (VarE a)) (VarE inputs)) (VarE out)) (AppT ListT (ConT ''String)))) (VarE config))) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Config))) [FunD 'build [Clause [AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP)),VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (AppE (VarE fun) (AppE (VarE 'getCPUs) (VarE config))) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config)]))) []]]
 
   return [constructorSig, constructor, build]
 
@@ -164,8 +177,48 @@ class CArgs a where cmdArgs :: [String] -> a
 instance CArgs [String] where cmdArgs = id
 instance (Args a, CArgs r) => CArgs (a -> r) where cmdArgs a r = cmdArgs $ a ++ args r
 
+instance CArgs (Cmd ()) where cmdArgs r = liftF $ CmdF r ()
+
 type a |-> b = a
 
-run :: CArgs a => a |-> [String]
+data CmdF a where
+  CmdF :: [String] -> a -> CmdF a
+  FinallyF :: Cmd () -> IO () -> a -> CmdF a
+deriving instance Functor CmdF
+
+type Cmd = FreeT CmdF Action
+
+cmdFinally :: Cmd () -> IO () -> Cmd ()
+cmdFinally a f = liftF $ FinallyF a f ()
+
+withTempDirectory' :: FilePath -> String -> (FilePath -> Cmd ()) -> Cmd ()
+withTempDirectory' targetDir template act = do
+  path <- liftIO $ createTempDirectory targetDir template
+  act path `cmdFinally` (liftIO . ignoringIOErrors $ removeDirectoryRecursive path)
+
+run :: CArgs a => a |-> Cmd ()
 run = cmdArgs []
 
+withCmd :: Cmd () -> Action ()
+withCmd x' = do
+  x <- runFreeT x'
+  case x of
+    Pure _ -> return ()
+    Free (CmdF str a) -> do
+      () <- cmd Shell str
+      withCmd a
+    Free (FinallyF a f a') -> do
+      withCmd a `actionFinally` f
+      withCmd a'
+
+withSubmit :: Cmd () -> [Either Config TOption] -> Action ()
+withSubmit x' config = do
+  x <- runFreeT x'
+  case x of
+    Pure _ -> return ()
+    Free (CmdF str a) -> do
+      () <- submit str config
+      withSubmit a config
+    Free (FinallyF a f a') -> do
+      withSubmit a config `actionFinally` f
+      withSubmit a' config

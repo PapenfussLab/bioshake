@@ -16,6 +16,7 @@ import           System.IO.Temp
 
 data MarkDups c = MarkDups c FilePath
 data DeDup c = DeDup c FilePath
+data FixMates c = FixMates c FilePath
 
 buildMarkDups (MarkDups _ jar) (paths -> [input]) [out] =
   run "java" ["-jar", jar] "MarkDuplicates"
@@ -30,5 +31,11 @@ buildDeDup (DeDup _ jar) (paths -> [input]) [out] =
     ["M=", out -<.> "txt"]
     "REMOVE_DUPLICATES=true"
 
+buildFixMates (FixMates _ jar) (paths -> [input]) [out] =
+  run "java" ["-jar", jar] "FixMateInformation"
+    ["I=", input]
+    ["O=", out]
+
 $(makeSingleTypes ''MarkDups [''IsBam] [''IsSorted])
 $(makeSingleTypes ''DeDup [''IsBam] [''IsSorted])
+$(makeSingleTypes ''FixMates [''IsBam] [''IsSorted])

@@ -16,3 +16,4 @@ import           Development.Shake.FilePath
 
 $(makeSingleCluster ''MarkDups [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildMarkDups)
 $(makeSingleCluster ''DeDup [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildDeDup)
+$(makeSingleCluster ''FixMates [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildFixMates)

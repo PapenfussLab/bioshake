@@ -88,6 +88,8 @@ instance Args String where args = map Right . words
 instance Args [String] where args = map Right
 instance Args TOption where args = return . Left
 instance Args Config where args (Config ls) = map Left ls
+instance (Args a, Args b) => Args (Either a b) where args = either args args
+instance (Args a, Args b) => Args [Either a b] where args = concatMap args
 
 type a |-> b = a
 
