@@ -1,8 +1,11 @@
-{-# LANGUAGE TypeOperators, ViewPatterns, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Internal.GATK where
 
-import Bioshake
-import Development.Shake.FilePath
+import           Bioshake
+import           Development.Shake.FilePath
 
 data ReQual = ReQual FilePath
 

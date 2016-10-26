@@ -1,10 +1,15 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, FlexibleContexts #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Bedtools(convert) where
 
-import Bioshake
-import Bioshake.Internal.Bedtools
-import Development.Shake
-import Development.Shake.FilePath
+import           Bioshake
+import           Bioshake.Internal.Bedtools
+import           Development.Shake
+import           Development.Shake.FilePath
 
 instance IsBam a => Buildable a (Convert "bam" "bed") where
   build params (paths -> [input]) [out] =

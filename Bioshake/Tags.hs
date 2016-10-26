@@ -1,9 +1,12 @@
-{-# LANGUAGE TemplateHaskell, TypeOperators, FlexibleContexts, UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE UndecidableInstances #-}
 module Bioshake.Tags where
 
-import Control.Monad
-import Bioshake.Types
-import Language.Haskell.TH
+import           Bioshake.Types
+import           Control.Monad
+import           Language.Haskell.TH
 
 -- Filetypes
 

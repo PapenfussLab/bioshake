@@ -1,11 +1,19 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, KindSignatures, GADTs, ScopedTypeVariables, FlexibleContexts #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE KindSignatures        #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Internal.Samtools where
 
-import Bioshake
-import Development.Shake.FilePath
-import GHC.TypeLits
-import Data.Proxy
-import Bioshake.Implicit
+import           Bioshake
+import           Bioshake.Implicit
+import           Data.Proxy
+import           Development.Shake.FilePath
+import           GHC.TypeLits
 
 data Sort :: * -> Symbol -> * where
   Sort :: c -> Sort c a

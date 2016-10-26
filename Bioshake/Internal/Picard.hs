@@ -1,12 +1,18 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TypeOperators, GADTs, ScopedTypeVariables, TemplateHaskell, ViewPatterns #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Internal.Picard where
 
-import Bioshake
-import Development.Shake
-import Development.Shake.FilePath
-import Data.Maybe
-import System.IO.Temp
-import Bioshake.TH
+import           Bioshake
+import           Bioshake.TH
+import           Data.Maybe
+import           Development.Shake
+import           Development.Shake.FilePath
+import           System.IO.Temp
 
 data MarkDups c = MarkDups c FilePath
 data DeDup c = DeDup c FilePath

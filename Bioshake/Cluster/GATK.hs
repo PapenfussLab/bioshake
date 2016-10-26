@@ -1,13 +1,17 @@
-{-# LANGUAGE TypeOperators, ViewPatterns, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Cluster.GATK(reQual) where
 
-import Bioshake
-import Bioshake.Cluster.Torque
-import Bioshake.Internal.GATK
-import Development.Shake
-import Development.Shake.FilePath
-import System.IO.Temp
-import Data.Implicit
+import           Bioshake
+import           Bioshake.Cluster.Torque
+import           Bioshake.Internal.GATK
+import           Data.Implicit
+import           Development.Shake
+import           Development.Shake.FilePath
+import           System.IO.Temp
 
 instance (Implicit_ Config, Referenced a, Pathable a, IsBam a) => Buildable a ReQual where
   build (ReQual jar) a@(paths -> [input]) [out] =

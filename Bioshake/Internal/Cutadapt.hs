@@ -1,9 +1,12 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TypeOperators, TemplateHaskell #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeOperators         #-}
 module Bioshake.Internal.Cutadapt where
 
-import Bioshake
-import Development.Shake.FilePath
-import Bioshake.TH
+import           Bioshake
+import           Bioshake.TH
+import           Development.Shake.FilePath
 
 data Trim c = Trim c Seq
 

@@ -1,12 +1,16 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Gridss(call, toBEDpe, Call(..)) where
 
-import Bioshake
-import Bioshake.Internal.Gridss
-import Development.Shake
-import System.IO.Temp
-import Bioshake.Implicit
-import System.Directory
+import           Bioshake
+import           Bioshake.Implicit
+import           Bioshake.Internal.Gridss
+import           Development.Shake
+import           System.Directory
+import           System.IO.Temp
 
 call :: Implicit_ Threads => FilePath -> Call Threads
 call = Call param_

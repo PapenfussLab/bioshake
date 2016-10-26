@@ -1,10 +1,16 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, KindSignatures, GADTs, ScopedTypeVariables #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE KindSignatures        #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeOperators         #-}
 module Bioshake.Internal.Bedtools where
 
-import Bioshake
-import Development.Shake.FilePath
-import GHC.TypeLits
-import Data.Proxy
+import           Bioshake
+import           Data.Proxy
+import           Development.Shake.FilePath
+import           GHC.TypeLits
 
 data Convert :: Symbol -> Symbol -> * where
   Convert :: Convert s t

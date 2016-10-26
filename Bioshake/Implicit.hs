@@ -1,7 +1,12 @@
-{-# LANGUAGE Rank2Types, MultiParamTypeClasses, ScopedTypeVariables, FlexibleInstances, UndecidableInstances, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE Rank2Types            #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE UndecidableInstances  #-}
 module Bioshake.Implicit where
 
-import Unsafe.Coerce
+import           Unsafe.Coerce
 
 class Default a where
   def :: a

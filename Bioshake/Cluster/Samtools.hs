@@ -1,12 +1,18 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, GADTs, FlexibleContexts #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Cluster.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup) where
 
-import Bioshake
-import Development.Shake
-import Development.Shake.FilePath
-import Bioshake.Internal.Samtools
-import Bioshake.Cluster.Torque
-import Bioshake.Implicit
+import           Bioshake
+import           Bioshake.Cluster.Torque
+import           Bioshake.Implicit
+import           Bioshake.Internal.Samtools
+import           Development.Shake
+import           Development.Shake.FilePath
 
 sort :: Implicit_ Config => Sort Config t
 sort = Sort param_

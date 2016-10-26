@@ -1,15 +1,19 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Cluster.Gridss(call, toBEDpe, Call(..)) where
 
-import Bioshake
-import Bioshake.Internal.Gridss
-import Development.Shake
-import Development.Shake.FilePath
-import System.IO.Temp
-import Bioshake.Implicit
-import Bioshake.Cluster.Torque
-import System.Directory
-import Control.Monad
+import           Bioshake
+import           Bioshake.Cluster.Torque
+import           Bioshake.Implicit
+import           Bioshake.Internal.Gridss
+import           Control.Monad
+import           Development.Shake
+import           Development.Shake.FilePath
+import           System.Directory
+import           System.IO.Temp
 
 call :: Implicit_ Config => FilePath -> Call Config
 call = Call param_

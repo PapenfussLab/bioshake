@@ -1,4 +1,13 @@
-{-# LANGUAGE MultiParamTypeClasses, TypeOperators, FlexibleContexts, GADTs, FlexibleInstances, UndecidableInstances, ViewPatterns, ScopedTypeVariables, Rank2Types, TemplateHaskell #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE Rank2Types            #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake( module Types
                , module Implicit
                , module Tags
@@ -7,19 +16,19 @@ module Bioshake( module Types
                , out
                , withAll) where
 
-import Bioshake.Cluster.Torque
-import Bioshake.Implicit as Implicit
-import Bioshake.Tags as Tags
-import Bioshake.Types as Types
-import Control.Monad
-import Control.Monad.Trans
-import Control.Monad.Trans.State.Strict
-import Data.List
-import Data.String
-import Development.Shake
-import Language.Haskell.TH
-import qualified Data.Set as S
-import System.Directory (copyFile)
+import           Bioshake.Cluster.Torque
+import           Bioshake.Implicit                as Implicit
+import           Bioshake.Tags                    as Tags
+import           Bioshake.Types                   as Types
+import           Control.Monad
+import           Control.Monad.Trans
+import           Control.Monad.Trans.State.Strict
+import           Data.List
+import qualified Data.Set                         as S
+import           Data.String
+import           Development.Shake
+import           Language.Haskell.TH
+import           System.Directory                 (copyFile)
 
 -- Referenced (for track reference genomes automatically)
 class Referenced a where

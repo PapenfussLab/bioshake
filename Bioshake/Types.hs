@@ -1,13 +1,17 @@
-{-# LANGUAGE TypeOperators, GADTs, MultiParamTypeClasses, FlexibleContexts, UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE UndecidableInstances  #-}
 module Bioshake.Types where
 
-import Bioshake.Implicit
-import Control.Monad
-import Control.Monad.Trans
-import Control.Monad.Trans.State.Strict
-import Data.String
-import Development.Shake
-import qualified Data.Set as S
+import           Bioshake.Implicit
+import           Control.Monad
+import           Control.Monad.Trans
+import           Control.Monad.Trans.State.Strict
+import qualified Data.Set                         as S
+import           Data.String
+import           Development.Shake
 
 data a :-> b where (:->) :: Buildable a b => a -> b -> a :-> b
 infixl 1 :->
@@ -60,7 +64,7 @@ instance IsString Seq where
       parse 'c' = C
       parse 'g' = G
       parse 't' = T
-      parse _ = error "cannot parse nucleotide"
+      parse _   = error "cannot parse nucleotide"
 
 -- For threaded config
 

@@ -1,11 +1,14 @@
-{-# LANGUAGE TypeOperators, ViewPatterns, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.GATK(reQual) where
 
-import Bioshake
-import Bioshake.Internal.GATK
-import Development.Shake
-import Development.Shake.FilePath
-import System.IO.Temp
+import           Bioshake
+import           Bioshake.Internal.GATK
+import           Development.Shake
+import           Development.Shake.FilePath
+import           System.IO.Temp
 
 instance (Referenced a, Pathable a, IsBam a) => Buildable a ReQual where
   build (ReQual jar) a@(paths -> [input]) [out] =

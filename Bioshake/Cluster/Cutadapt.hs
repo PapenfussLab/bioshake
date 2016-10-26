@@ -1,11 +1,15 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Cluster.Cutadapt(trim) where
 
-import Bioshake
-import Bioshake.Internal.Cutadapt
-import Development.Shake
-import Bioshake.Cluster.Torque
-import Bioshake.Implicit
+import           Bioshake
+import           Bioshake.Cluster.Torque
+import           Bioshake.Implicit
+import           Bioshake.Internal.Cutadapt
+import           Development.Shake
 
 trim :: Implicit_ Config => Seq -> Trim Config
 trim = Trim param_

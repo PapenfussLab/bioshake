@@ -1,9 +1,12 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Cutadapt(trim) where
 
-import Bioshake
-import Bioshake.Internal.Cutadapt
-import Development.Shake
+import           Bioshake
+import           Bioshake.Internal.Cutadapt
+import           Development.Shake
 
 trim :: Seq -> Trim ()
 trim = Trim ()

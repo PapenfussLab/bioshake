@@ -1,9 +1,12 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TypeOperators, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
 module Bioshake.Internal.Gridss where
 
-import Bioshake
-import Bioshake.Implicit
-import Development.Shake.FilePath
+import           Bioshake
+import           Bioshake.Implicit
+import           Development.Shake.FilePath
 
 data Call c = Call c FilePath
 data ToBEDpe c = ToBEDpe c FilePath

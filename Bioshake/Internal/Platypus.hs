@@ -1,11 +1,13 @@
-{-# LANGUAGE TemplateHaskell, FlexibleInstances, ViewPatterns #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE ViewPatterns      #-}
 module Bioshake.Internal.Platypus where
 
-import Bioshake
-import Bioshake.TH
-import Development.Shake
-import Development.Shake.FilePath
-import Data.List
+import           Bioshake
+import           Bioshake.TH
+import           Data.List
+import           Development.Shake
+import           Development.Shake.FilePath
 
 data Call c = Call c
 

@@ -1,17 +1,22 @@
-{-# LANGUAGE GADTs, TypeSynonymInstances, FlexibleInstances, TypeOperators, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 module Bioshake.Cluster.Torque where
 
-import Control.Monad
-import Data.Either
-import Data.List
-import Development.Shake.FilePath
-import Development.Shake hiding (doesFileExist)
-import System.Directory (doesFileExist, getCurrentDirectory, copyFile)
-import System.IO.Temp
-import System.Posix.Files
-import Bioshake.Implicit
-import qualified Data.Map as M
-import Data.Maybe
+import           Bioshake.Implicit
+import           Control.Monad
+import           Data.Either
+import           Data.List
+import qualified Data.Map                   as M
+import           Data.Maybe
+import           Development.Shake          hiding (doesFileExist)
+import           Development.Shake.FilePath
+import           System.Directory           (copyFile, doesFileExist,
+                                             getCurrentDirectory)
+import           System.IO.Temp
+import           System.Posix.Files
 
 type ModuleName = String
 type Queue = String
@@ -31,7 +36,7 @@ getCPUs :: Config -> Int
 getCPUs (Config ts) = foldl getCPUs' 1 ts
   where
     getCPUs' _ (CPUs n) = n
-    getCPUs' n _ = n
+    getCPUs' n _        = n
 
 class TArgs a where cmdArgs :: [Either TOption String] -> a
 instance (Args a, TArgs r) => TArgs (a -> r) where cmdArgs a r = cmdArgs $ a ++ args r
@@ -56,27 +61,27 @@ instance TArgs (IO ()) where
       modules = map unModule $ filter isModule options
       options = lefts args
       isModule (Module _) = True
-      isModule _ = False
+      isModule _          = False
       unModule (Module a) = a
 
       isStdout (TStdout _) = True
-      isStdout _ = False
+      isStdout _           = False
       unStdout (TStdout path) = FileStdout path
       stdout = unStdout <$> find isStdout options
 
       exec = unwords $ rights args
       dedupOpts = M.elems . M.fromList $ mapMaybe key options
         where
-          key a@(Mem _) = Just ("mem", a)
-          key a@(CPUs _) = Just ("cpus", a)
+          key a@(Mem _)   = Just ("mem", a)
+          key a@(CPUs _)  = Just ("cpus", a)
           key a@(Queue _) = Just ("queue", a)
-          key _ = Nothing
+          key _           = Nothing
       resflags = unwords $ map toFlag dedupOpts
         where
-          toFlag (Mem n) = "-l mem=" ++ show n
-          toFlag (CPUs n) = "-l nodes=1:ppn=" ++ show n
+          toFlag (Mem n)      = "-l mem=" ++ show n
+          toFlag (CPUs n)     = "-l nodes=1:ppn=" ++ show n
           toFlag (Queue name) = "-q " ++ name
-          toFlag _ = []
+          toFlag _            = []
 
 class Args a where args :: a -> [Either TOption String]
 instance Args String where args = map Right . words

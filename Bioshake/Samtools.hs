@@ -1,11 +1,17 @@
-{-# LANGUAGE ViewPatterns, FlexibleInstances, MultiParamTypeClasses, TypeOperators, DataKinds, GADTs, FlexibleContexts #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup, pileup) where
 
-import Bioshake
-import Development.Shake
-import Development.Shake.FilePath
-import Bioshake.Internal.Samtools
-import Bioshake.Implicit
+import           Bioshake
+import           Bioshake.Implicit
+import           Bioshake.Internal.Samtools
+import           Development.Shake
+import           Development.Shake.FilePath
 
 sort :: Implicit_ Threads => Sort Threads t
 sort = Sort param_
