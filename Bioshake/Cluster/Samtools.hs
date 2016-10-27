@@ -3,14 +3,16 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE ViewPatterns          #-}
-module Bioshake.Cluster.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup) where
+module Bioshake.Cluster.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup, index) where
 
 import           Bioshake
 import           Bioshake.Cluster.Torque
 import           Bioshake.Implicit
 import           Bioshake.Internal.Samtools
+import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
@@ -74,3 +76,5 @@ instance (Referenced a, IsSam a) => Buildable a (Pileup Config) where
     submit "samtools mpileup -ug" ["-f", getRef a] [input] ["-o", out]
       config
       (CPUs 1)
+
+$(makeSingleCluster ''Index [''IsBam] 'buildIndex)

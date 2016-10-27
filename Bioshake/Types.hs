@@ -17,9 +17,7 @@ data a :-> b where (:->) :: Buildable a b => a -> b -> a :-> b
 infixl 1 :->
 
 class Buildable a b where
-  build :: b -> a -> [FilePath] -> Action ()
-  threads :: a -> b -> Int
-  threads _ _ = 1
+  build :: Implicit_ Resource => b -> a -> [FilePath] -> Action ()
 
 type Compiler = StateT (S.Set [FilePath]) Rules
 
@@ -37,7 +35,7 @@ instance (Pathable a, Pathable (a :-> b), Compilable a) => Compilable (a :-> b) 
     when (outs `S.notMember` set) $ do
       lift $ outs &%> \_ -> do
         need (paths a)
-        withResource param_ (threads a b) $ build b a outs
+        build b a outs
       put (outs `S.insert` set)
     compile a
 

@@ -3,13 +3,15 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE ViewPatterns          #-}
-module Bioshake.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup, pileup) where
+module Bioshake.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup, pileup, indexRules) where
 
 import           Bioshake
 import           Bioshake.Implicit
 import           Bioshake.Internal.Samtools
+import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
@@ -41,27 +43,22 @@ pileup :: Pileup ()
 pileup = Pileup ()
 
 instance IsSam a => Buildable a (Sort Threads "sam") where
-  threads _ (Sort (Threads t)) = t
   build (Sort (Threads t)) a@(paths -> [input]) [out] =
     cmd Shell "samtools view -b" [input] "|" "samtools sort -" ["-@", show t] ["-o", out]
 
 instance IsBam a => Buildable a (Sort Threads "bam") where
-  threads _ (Sort (Threads t)) = t
   build (Sort (Threads t)) a@(paths -> [input]) [out] =
     cmd "samtools sort" [input] ["-@", show t] ["-o", out]
 
 instance IsSam a => Buildable a (Convert Threads "sam" "bam") where
-  threads _ (Convert (Threads t)) = t
   build (Convert (Threads t)) a@(paths -> [input]) [out] =
     cmd "samtools view -b" [input] ["-@", show t] ["-o", out]
 
 instance IsBam a => Buildable a (Convert Threads "bam" "sam") where
-  threads _ (Convert (Threads t)) = t
   build (Convert (Threads t)) a@(paths -> [input]) [out] =
     cmd "samtools view -h" [input] ["-@", show t] ["-o", out]
 
 instance IsSam a => Buildable a (MappedOnly Threads) where
-  threads _ (MappedOnly (Threads t)) = t
   build (MappedOnly (Threads t)) a@(paths -> [input]) [out] =
     cmd "samtools view -F 4 -b" [input] ["-@", show t] ["-o", out]
 
@@ -72,3 +69,9 @@ instance (IsSorted a, IsPairedEnd a, IsBam a) => Buildable a (DeDup ()) where
 instance (Referenced a, IsSam a) => Buildable a (Pileup ()) where
   build _ a@(paths -> [input]) [out] =
     cmd "samtools mpileup -ug" ["-f", getRef a] [input] ["-o", out]
+
+indexRules = do
+  "//*.bam.bai" %> \out -> do
+    let input = dropExtension out
+    need [input]
+    cmd "samtools index" [input] [out]

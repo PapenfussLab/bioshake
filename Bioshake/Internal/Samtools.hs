@@ -5,12 +5,14 @@
 {-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Internal.Samtools where
 
 import           Bioshake
 import           Bioshake.Implicit
+import           Bioshake.TH
 import           Data.Proxy
 import           Development.Shake.FilePath
 import           GHC.TypeLits

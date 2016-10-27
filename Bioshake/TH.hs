@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveFunctor        #-}
+{-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE GADTs                #-}
 {-# LANGUAGE StandaloneDeriving   #-}
@@ -20,10 +21,12 @@ import           Data.List
 import           Data.List.Split
 import           Data.Maybe
 import           Development.Shake        (Action (..), CmdOption (Shell),
-                                           actionFinally, cmd)
+                                           Resource, actionFinally, cmd,
+                                           withResource)
 import           Language.Haskell.TH
 import           System.Directory         (removeDirectoryRecursive)
 import           System.IO.Temp           (createTempDirectory)
+import           System.Posix.Files       (createLink, rename)
 
 makeSingleTypes :: Name -> [Name] -> [Name] -> DecsQ
 makeSingleTypes ty outtags transtags = do
@@ -89,7 +92,7 @@ makeSingleThread ty tags fun = do
   inputs <- newName "inputs"
   out <- newName "out"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (TupleT 0))) [FunD 'build [Clause [VarP a,VarP inputs,VarP out] (NormalB (AppE (VarE 'withCmd) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (TupleT 0))) [FunD 'build [Clause [VarP a,VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withCmd) (LitE (IntegerL 1))) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []]]
 
   return [constructor, build]
 
@@ -138,7 +141,7 @@ makeThreaded ty tags fun = do
   out <- newName "out"
   t <- newName "t"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Threads))) [FunD 'build [Clause [AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP)), VarP inputs,VarP out] (NormalB (AppE (VarE 'withCmd) (SigE (AppE (AppE (AppE (AppE (VarE fun) (VarE t)) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []], FunD 'threads [Clause [WildP, AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP))] (NormalB (VarE t)) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Threads))) [FunD 'build [Clause [AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP)), VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withCmd) (VarE t)) (SigE (AppE (AppE (AppE (AppE (VarE fun) (VarE t)) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []]]
 
   return [constructorSig, constructor, build]
 
@@ -176,7 +179,6 @@ class CArgs a where cmdArgs :: [String] -> a
 
 instance CArgs [String] where cmdArgs = id
 instance (Args a, CArgs r) => CArgs (a -> r) where cmdArgs a r = cmdArgs $ a ++ args r
-
 instance CArgs (Cmd ()) where cmdArgs r = liftF $ CmdF r ()
 
 type a |-> b = a
@@ -199,17 +201,17 @@ withTempDirectory' targetDir template act = do
 run :: CArgs a => a |-> Cmd ()
 run = cmdArgs []
 
-withCmd :: Cmd () -> Action ()
-withCmd x' = do
-  x <- runFreeT x'
-  case x of
-    Pure _ -> return ()
-    Free (CmdF str a) -> do
-      () <- cmd Shell str
-      withCmd a
-    Free (FinallyF a f a') -> do
-      withCmd a `actionFinally` f
-      withCmd a'
+withCmd :: Implicit_ Resource => Int -> Cmd () -> Action ()
+withCmd t x' = do
+    x <- runFreeT x'
+    case x of
+        Pure _ -> return ()
+        Free (CmdF str a) -> do
+            () <- withResource param_ t $ cmd Shell str
+            withCmd t a
+        Free (FinallyF a f a') -> do
+            withCmd t a `actionFinally` f
+            withCmd t a'
 
 withSubmit :: Cmd () -> [Either Config TOption] -> Action ()
 withSubmit x' config = do
