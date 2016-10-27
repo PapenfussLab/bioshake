@@ -27,17 +27,16 @@ data Convert :: * -> Symbol -> Symbol -> * where
   Convert :: c -> Convert c a b
 
 instance Pathable a => Pathable (a :-> Sort c t) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> "sorted.bam"]
+  paths ((paths -> [a]) :-> _) = [hashPath a <.> "sorted.bam"]
 instance Pathable a => Pathable (a :-> MappedOnly c ) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".mapped_only.bam"]
+  paths ((paths -> [a]) :-> _) = [hashPath a <.> ".mapped_only.bam"]
 instance Pathable a => Pathable (a :-> DeDup c) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".dedup.bam"]
+  paths ((paths -> [a]) :-> _) = [hashPath a <.> ".dedup.bam"]
 instance Pathable a => Pathable (a :-> Pileup c) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> ".pileup.bcf"]
+  paths ((paths -> [a]) :-> _) = [hashPath a <.> ".pileup.bcf"]
 
 instance (KnownSymbol t, Pathable a) => Pathable (a :-> Convert c s t) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> symbolVal (Proxy :: Proxy t)]
-
 
 instance Pathable a => IsSorted (a :-> Sort c t)
 instance Pathable a => IsBam (a :-> Sort c t)

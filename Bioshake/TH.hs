@@ -9,24 +9,35 @@
 module Bioshake.TH where
 
 import           Bioshake
-import           Bioshake.Cluster.Torque  (Config, TOption (CPUs), getCPUs,
-                                           submit)
-import           Bioshake.Implicit        (Implicit_, param_)
+import           Bioshake.Cluster.Torque    (Config, TOption (CPUs, Mem),
+                                             getCPUs, submit)
+import           Bioshake.Implicit          (Implicit_, param_)
 import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.Free
+import qualified Crypto.Hash                as H
+import           Data.Binary                (Binary, encode)
+import qualified Data.ByteString            as B
+import           Data.ByteString.Lazy       (toStrict)
 import           Data.Char
 import           Data.Either
 import           Data.List
 import           Data.List.Split
 import           Data.Maybe
-import           Development.Shake        (Action (..), CmdOption (Shell),
-                                           Resource, actionFinally, cmd,
-                                           withResource)
+import           Development.Shake          (Action (..), CmdOption (Shell),
+                                             Resource, actionFinally, cmd, unit,
+                                             withResource)
+import           Development.Shake.FilePath
 import           Language.Haskell.TH
-import           System.Directory         (removeDirectoryRecursive)
-import           System.IO.Temp           (createTempDirectory)
-import           System.Posix.Files       (createLink, rename)
+import           System.Directory           (removeDirectoryRecursive)
+import           System.IO.Temp             (createTempDirectory)
+import           System.Posix.Files         (createLink, rename)
+
+sha1 :: B.ByteString -> H.Digest H.SHA1
+sha1 = H.hash
+
+hashPath :: Binary b => b -> FilePath
+hashPath = ("tmp" </> ) . show . sha1 . toStrict . encode
 
 makeSingleTypes :: Name -> [Name] -> [Name] -> DecsQ
 makeSingleTypes ty outtags transtags = do
@@ -38,7 +49,7 @@ makeSingleTypes ty outtags transtags = do
       ext = map toLower ext'
 
 
-  path <- [d| instance Pathable a => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = ["tmp" </> concatMap takeFileName (paths a) <.> lastMod <.> name <.> ext] |]
+  path <- [d| instance Pathable a => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = [hashPath (paths a) <.> lastMod <.> name <.> ext] |]
 
   tags <- forM outtags $ \t -> do
     a <- newName "a"
@@ -63,7 +74,7 @@ makeMultiTypes ty outtags transtags = do
       ext = map toLower ext'
 
 
-  path <- [d| instance Pathable a => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = map (\x -> "tmp" </> takeFileName x <.> lastMod <.> name <.> ext) (paths a) |]
+  path <- [d| instance Pathable a => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = map (\x -> hashPath x <.> lastMod <.> name <.> ext) (paths a) |]
 
   tags <- forM outtags $ \t -> do
     a <- newName "a"
@@ -185,6 +196,7 @@ type a |-> b = a
 
 data CmdF a where
   CmdF :: [String] -> a -> CmdF a
+  MemLimit :: Int -> Cmd () -> a -> CmdF a
   FinallyF :: Cmd () -> IO () -> a -> CmdF a
 deriving instance Functor CmdF
 
@@ -192,6 +204,9 @@ type Cmd = FreeT CmdF Action
 
 cmdFinally :: Cmd () -> IO () -> Cmd ()
 cmdFinally a f = liftF $ FinallyF a f ()
+
+memLimit :: Int -> Cmd () -> Cmd ()
+memLimit a f = liftF $ MemLimit a f ()
 
 withTempDirectory' :: FilePath -> String -> (FilePath -> Cmd ()) -> Cmd ()
 withTempDirectory' targetDir template act = do
@@ -212,6 +227,9 @@ withCmd t x' = do
         Free (FinallyF a f a') -> do
             withCmd t a `actionFinally` f
             withCmd t a'
+        Free (MemLimit _ a b) -> do
+          withCmd t a
+          withCmd t b
 
 withSubmit :: Cmd () -> [Either Config TOption] -> Action ()
 withSubmit x' config = do
@@ -224,3 +242,9 @@ withSubmit x' config = do
     Free (FinallyF a f a') -> do
       withSubmit a config `actionFinally` f
       withSubmit a' config
+    Free (MemLimit mem b a) -> do
+      cmd <- runFreeT b
+      case cmd of
+        Free (CmdF str a) -> unit $ submit str config (Mem mem)
+        x -> error "Can only memory limit run commands"
+      withSubmit a config
