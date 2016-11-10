@@ -21,8 +21,8 @@ class Buildable a b where
 
 type Compiler = StateT (S.Set [FilePath]) Rules
 
-compileRules :: (Implicit_ Resource, Compilable a, Foldable t) => t a -> Rules ()
-compileRules pipes = evalStateT (mapM_ compile pipes) mempty
+compileRules :: Compiler () -> Rules ()
+compileRules p = evalStateT p mempty
 
 class Compilable a where
   compile :: Implicit_ Resource => a -> Compiler ()

@@ -19,11 +19,14 @@ class Pathable a => IsSorted a
 class Pathable a => IsVCF a
 class Pathable a => IsGff a
 class Pathable a => IsBed a
+class Pathable a => HasRG a
+class Pathable a => IsMPileup a
 
 instance (Pathable (a :-> b), IsPairedEnd a) => IsPairedEnd (a :-> b)
+instance (Pathable (a :-> b), HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
 
 allTags = [''IsFastQ, ''IsPairedEnd, ''IsSam, ''IsBam, ''IsSorted, ''IsVCF
-          , ''IsGff, ''IsBed]
+          , ''IsGff, ''IsBed, ''IsBcf, ''HasRG, ''IsMPileup]
 
 -- Tagging TH
 

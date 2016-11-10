@@ -35,12 +35,14 @@ import           System.Directory                 (copyFile,
                                                    removeDirectoryRecursive)
 import           System.IO.Temp                   (createTempDirectory)
 
--- Referenced (for track reference genomes automatically)
+-- Referenced (to track reference genomes automatically)
 class Referenced a where
   getRef :: a -> FilePath
+  name :: a -> String -- e.g., hg19
 
 instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
+  name (a :-> _) = name a
 
 -- Hard naming outputs
 data Out = Out [FilePath]
@@ -66,10 +68,11 @@ instance Compilable a => Compilable (All a) where
   compile (All as) = mapM_ compile as
 
 instance Pathable a => Pathable (All a) where
-  paths (All ps) = concatMap paths ps
+  paths (All ps) = nub $ concatMap paths ps
 
 instance Referenced a => Referenced (All a) where
   getRef (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap getRef as
+  name (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap name as
 
 $(allTransTags ''All)
 

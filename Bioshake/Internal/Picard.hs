@@ -14,25 +14,25 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           System.IO.Temp
 
-data MarkDups c = MarkDups c FilePath
-data DeDup c = DeDup c FilePath
-data FixMates c = FixMates c FilePath
+data MarkDups c = MarkDups c
+data DeDup c = DeDup c
+data FixMates c = FixMates c
 
-buildMarkDups (MarkDups _ jar) (paths -> [input]) [out] =
-  run "java" ["-jar", jar] "MarkDuplicates"
+buildMarkDups _ (paths -> [input]) [out] =
+  run "picard MarkDuplicates"
     ["I=", input]
     ["O=", out]
     ["M=", out -<.> "txt"]
 
-buildDeDup (DeDup _ jar) (paths -> [input]) [out] =
-  run "java" ["-jar", jar] "MarkDuplicates"
+buildDeDup _ (paths -> [input]) [out] =
+  run "picard MarkDuplicates"
     ["I=", input]
     ["O=", out]
     ["M=", out -<.> "txt"]
     "REMOVE_DUPLICATES=true"
 
-buildFixMates (FixMates _ jar) (paths -> [input]) [out] =
-  run "java" ["-jar", jar] "FixMateInformation"
+buildFixMates _ (paths -> [input]) [out] =
+  run "picard FixMateInformation"
     ["I=", input]
     ["O=", out]
 

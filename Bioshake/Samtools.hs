@@ -6,7 +6,7 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE ViewPatterns          #-}
-module Bioshake.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup, pileup, indexRules) where
+module Bioshake.Samtools(sort, sortBam, sortSam, mappedOnly, convert, sam2bam, bam2sam, dedup, pileup, indexRules, addrgline) where
 
 import           Bioshake
 import           Bioshake.Implicit
@@ -66,12 +66,14 @@ instance (IsSorted a, IsPairedEnd a, IsBam a) => Buildable a (DeDup ()) where
   build _ (paths -> [input]) [out] =
     cmd "samtools rmdup" [input] [out]
 
-instance (Referenced a, IsSam a) => Buildable a (Pileup ()) where
-  build _ a@(paths -> [input]) [out] =
-    cmd "samtools mpileup -ug" ["-f", getRef a] [input] ["-o", out]
+instance (Referenced a, IsBam a) => Buildable a (Pileup ()) where
+  build _ a@(paths -> inputs) [out] =
+    cmd "samtools mpileup -q1 -B" ["-f", getRef a] inputs ["-o", out]
 
-indexRules = do
+indexRules =
   "//*.bam.bai" %> \out -> do
     let input = dropExtension out
     need [input]
     cmd "samtools index" [input] [out]
+
+$(makeSingleThread ''AddRGLine [''IsBam] 'buildAddRGLine)

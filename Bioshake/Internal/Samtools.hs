@@ -23,6 +23,17 @@ data DeDup c = DeDup c
 data MappedOnly c = MappedOnly c
 data Pileup c = Pileup c
 
+data AddRGLine c = AddRGLine c String
+
+buildAddRGLine (AddRGLine _ name) (paths -> [input]) [out] =
+  run "samtools addreplacerg"
+    ["-r", concat ["'ID:", name, "\tSM:", name, "'"]]
+    input
+    ["-o", out]
+    "-O bam"
+
+$(makeSingleTypes ''AddRGLine [''IsBam, ''HasRG] [''IsSorted])
+
 data Convert :: * -> Symbol -> Symbol -> * where
   Convert :: c -> Convert c a b
 
@@ -33,7 +44,7 @@ instance Pathable a => Pathable (a :-> MappedOnly c ) where
 instance Pathable a => Pathable (a :-> DeDup c) where
   paths ((paths -> [a]) :-> _) = [hashPath a <.> ".dedup.bam"]
 instance Pathable a => Pathable (a :-> Pileup c) where
-  paths ((paths -> [a]) :-> _) = [hashPath a <.> ".pileup.bcf"]
+  paths ((paths -> a) :-> _) = [hashPath (concat a) <.> ".pileup.bcf"]
 
 instance (KnownSymbol t, Pathable a) => Pathable (a :-> Convert c s t) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> symbolVal (Proxy :: Proxy t)]
@@ -45,4 +56,4 @@ instance Pathable a => IsBam (a :-> Convert c s "bam")
 instance Pathable a => IsSam (a :-> Convert c s "sam")
 instance Pathable a => IsBam (a :-> DeDup c)
 instance Pathable a => IsSorted (a :-> DeDup c)
-instance Pathable a => IsBcf (a :-> Pileup c)
+instance Pathable a => IsMPileup (a :-> Pileup c)
