@@ -44,7 +44,7 @@ instance Pathable a => Pathable (a :-> MappedOnly c ) where
 instance Pathable a => Pathable (a :-> DeDup c) where
   paths ((paths -> [a]) :-> _) = [hashPath a <.> ".dedup.bam"]
 instance Pathable a => Pathable (a :-> Pileup c) where
-  paths ((paths -> a) :-> _) = [hashPath (concat a) <.> ".pileup.bcf"]
+  paths ((paths -> a) :-> _) = [hashPath (concat a) <.> ".pileup"]
 
 instance (KnownSymbol t, Pathable a) => Pathable (a :-> Convert c s t) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> symbolVal (Proxy :: Proxy t)]
