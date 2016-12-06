@@ -12,6 +12,7 @@ module Bioshake( module Types
                , module Implicit
                , module Tags
                , Referenced(..)
+               , Capture(..)
                , ignoringIOErrors
                , withTempDirectory
                , bioshake
@@ -44,6 +45,13 @@ instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
   name (a :-> _) = name a
 
+-- Same for captures
+class Capture a where
+  getBED :: a -> FilePath
+
+instance {-# OVERLAPPABLE #-} Capture a => Capture (a :-> b) where
+  getBED (a :-> _) = getBED a
+
 -- Hard naming outputs
 data Out = Out [FilePath]
 
@@ -73,6 +81,9 @@ instance Pathable a => Pathable (All a) where
 instance Referenced a => Referenced (All a) where
   getRef (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap getRef as
   name (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap name as
+
+instance Capture a => Capture (All a) where
+  getBED (All as) = foldl1 (\l r -> if l == r then l else error "cannot combine mixed captures") $ fmap getBED as
 
 $(allTransTags ''All)
 
