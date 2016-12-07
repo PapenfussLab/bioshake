@@ -62,7 +62,7 @@ instance IsSam a => Buildable a (MappedOnly Threads) where
   build (MappedOnly (Threads t)) a@(paths -> [input]) [out] =
     cmd "samtools view -F 4 -b" [input] ["-@", show t] ["-o", out]
 
-instance (IsSorted a, IsPairedEnd a, IsBam a) => Buildable a (DeDup ()) where
+instance (Sorted a, IsPairedEnd a, IsBam a) => Buildable a (DeDup ()) where
   build _ (paths -> [input]) [out] =
     cmd "samtools rmdup" [input] [out]
 

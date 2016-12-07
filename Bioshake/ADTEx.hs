@@ -10,4 +10,4 @@ import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeSingleThread ''Call [''Capture, ''IsBam] 'buildADTEx)
+$(makeSingleThread ''Call [''Capture, ''IsBam, ''DeDuped] 'buildADTEx)
