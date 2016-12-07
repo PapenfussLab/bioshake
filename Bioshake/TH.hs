@@ -90,8 +90,8 @@ makeMultiTypes ty outtags transtags = do
   return $ path ++ tags ++ transtags
 
 makeSingleThread ty tags fun = do
-  let name = nameBase ty
-      name' = map toLower name
+  let (c : name) = nameBase ty
+      name' = toLower c : name
 
   TyConI (DataD _ _ _ _ [NormalC con _] _) <- reify ty
 
@@ -108,8 +108,8 @@ makeSingleThread ty tags fun = do
   return [constructor, build]
 
 makeSingleCluster ty tags fun = do
-  let name = nameBase ty
-      name' = map toLower name
+  let (c : name) = nameBase ty
+      name' = toLower c : name
 
   TyConI (DataD _ _ _ _ [NormalC con conTypes] _) <- reify ty
 
@@ -133,8 +133,8 @@ makeSingleCluster ty tags fun = do
 -- Multithreaded versions of the above
 
 makeThreaded ty tags fun = do
-  let name = nameBase ty
-      name' = map toLower name
+  let (c : name) = nameBase ty
+      name' = toLower c : name
 
   TyConI (DataD _ _ _ _ [NormalC con conTypes] _) <- reify ty
 
@@ -158,8 +158,8 @@ makeThreaded ty tags fun = do
 
 
 makeCluster ty tags fun = do
-  let name = nameBase ty
-      name' = map toLower name
+  let (c : name) = nameBase ty
+      name' = toLower c : name
 
   TyConI (DataD _ _ _ _ [NormalC con conTypes] _) <- reify ty
 
