@@ -37,5 +37,5 @@ buildFixMates _ (paths -> [input]) [out] =
     ["O=", out]
 
 $(makeSingleTypes ''MarkDups [''IsBam] [''Sorted])
-$(makeSingleTypes ''DeDup [''IsBam] [''Sorted, ''DeDuped])
+$(makeSingleTypes ''DeDup [''IsBam, ''DeDuped] [''Sorted])
 $(makeSingleTypes ''FixMates [''IsBam] [''Sorted])

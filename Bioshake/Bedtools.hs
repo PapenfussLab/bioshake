@@ -15,7 +15,7 @@ instance IsBam a => Buildable a (Convert "bam" "bed") where
   build params (paths -> [input]) [out] =
     cmd "bedtools bamtobed" ["-i", input] (FileStdout out)
 
-instance (IsPairedEnd a, IsBam a) => Buildable a (Convert "bam" "bedpe") where
+instance (PairedEnd a, IsBam a) => Buildable a (Convert "bam" "bedpe") where
   build params (paths -> [input]) [out] =
     cmd "bedtools bamtobed" ["-i", input] "-bedpe" (FileStdout out)
 

@@ -19,14 +19,15 @@ class Pathable a => IsCSV a
 class Pathable a => IsFastQ a
 class Pathable a => IsGff a
 class Pathable a => IsMPileup a
-class Pathable a => IsPairedEnd a
 class Pathable a => IsSam a
 class Pathable a => IsTSV a
 class Pathable a => IsVCF a
+class Pathable a => PairedEnd a
 class Pathable a => Sorted a
 
-instance (Pathable (a :-> b), IsPairedEnd a) => IsPairedEnd (a :-> b)
-instance (Pathable (a :-> b), HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
+instance {-# OVERLAPPABLE #-} (Pathable (a :-> b), DeDuped a) => DeDuped (a :-> b)
+instance {-# OVERLAPPABLE #-} (Pathable (a :-> b), HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
+instance {-# OVERLAPPABLE #-} (Pathable (a :-> b), PairedEnd a) => PairedEnd (a :-> b)
 
 allTags = [''IsFastQ
           ,''DeDuped
@@ -40,6 +41,7 @@ allTags = [''IsFastQ
           ,''IsSam
           ,''IsTSV
           ,''IsVCF
+          ,''PairedEnd
           ,''Sorted]
 
 -- Tagging TH

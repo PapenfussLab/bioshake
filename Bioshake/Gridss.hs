@@ -13,4 +13,4 @@ import           Development.Shake
 import           System.Directory
 import           System.IO.Temp
 
-$(makeThreaded ''Call [''IsBam, ''IsSorted, ''Referenced] 'buildCall)
+$(makeThreaded ''Call [''IsBam, ''Sorted, ''Referenced] 'buildCall)

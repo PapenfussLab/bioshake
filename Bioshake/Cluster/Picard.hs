@@ -14,6 +14,6 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeSingleCluster ''MarkDups [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildMarkDups)
-$(makeSingleCluster ''DeDup [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildDeDup)
-$(makeSingleCluster ''FixMates [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildFixMates)
+$(makeSingleCluster ''MarkDups [''Sorted, ''PairedEnd, ''IsBam] 'buildMarkDups)
+$(makeSingleCluster ''DeDup [''Sorted, ''PairedEnd, ''IsBam] 'buildDeDup)
+$(makeSingleCluster ''FixMates [''Sorted, ''PairedEnd, ''IsBam] 'buildFixMates)

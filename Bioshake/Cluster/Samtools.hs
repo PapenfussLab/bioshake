@@ -65,7 +65,7 @@ instance IsSam a => Buildable a (MappedOnly Config) where
     submit "samtools view -F 4 -b" [input] ["-@", show (getCPUs config)] ["-o", out]
       config
 
-instance (IsSorted a, IsPairedEnd a, IsBam a) => Buildable a (DeDup Config) where
+instance (Sorted a, PairedEnd a, IsBam a) => Buildable a (DeDup Config) where
   build (DeDup config) (paths -> [input]) [out] =
     submit "samtools rmdup" [input] [out]
       config

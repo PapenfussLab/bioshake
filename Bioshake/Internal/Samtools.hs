@@ -32,7 +32,7 @@ buildAddRGLine (AddRGLine _ name) (paths -> [input]) [out] =
     ["-o", out]
     "-O bam"
 
-$(makeSingleTypes ''AddRGLine [''IsBam, ''HasRG] [''IsSorted])
+$(makeSingleTypes ''AddRGLine [''IsBam, ''HasRG] [''Sorted])
 
 data Convert :: * -> Symbol -> Symbol -> * where
   Convert :: c -> Convert c a b
@@ -49,11 +49,11 @@ instance Pathable a => Pathable (a :-> Pileup c) where
 instance (KnownSymbol t, Pathable a) => Pathable (a :-> Convert c s t) where
   paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> symbolVal (Proxy :: Proxy t)]
 
-instance Pathable a => IsSorted (a :-> Sort c t)
+instance Pathable a => Sorted (a :-> Sort c t)
 instance Pathable a => IsBam (a :-> Sort c t)
 instance Pathable a => IsBam (a :-> MappedOnly c)
 instance Pathable a => IsBam (a :-> Convert c s "bam")
 instance Pathable a => IsSam (a :-> Convert c s "sam")
 instance Pathable a => IsBam (a :-> DeDup c)
-instance Pathable a => IsSorted (a :-> DeDup c)
+instance Pathable a => Sorted (a :-> DeDup c)
 instance Pathable a => IsMPileup (a :-> Pileup c)

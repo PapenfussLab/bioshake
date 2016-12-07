@@ -11,6 +11,6 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeSingleThread ''MarkDups [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildMarkDups)
-$(makeSingleThread ''DeDup [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildDeDup)
-$(makeSingleThread ''FixMates [''IsSorted, ''IsPairedEnd, ''IsBam] 'buildFixMates)
+$(makeSingleThread ''MarkDups [''Sorted, ''PairedEnd, ''IsBam] 'buildMarkDups)
+$(makeSingleThread ''DeDup [''Sorted, ''PairedEnd, ''IsBam] 'buildDeDup)
+$(makeSingleThread ''FixMates [''Sorted, ''PairedEnd, ''IsBam] 'buildFixMates)

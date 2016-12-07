@@ -34,7 +34,7 @@ buildReQual (ReQual _ jar sites) a@(paths -> [input]) [out] =
         ["-o", out]
       return ()
 
-$(makeSingleTypes ''ReQual [''IsBam] [''IsSorted])
+$(makeSingleTypes ''ReQual [''IsBam] [''Sorted])
 
 data RealignIndels c = RealignIndels c FilePath
 
@@ -57,4 +57,4 @@ buildRealignIndels (RealignIndels _ jar) a@(paths -> [input]) [out] =
         ["-o", out]
       return ()
 
-$(makeSingleTypes ''RealignIndels [''IsBam] [''IsSorted])
+$(makeSingleTypes ''RealignIndels [''IsBam] [''Sorted])

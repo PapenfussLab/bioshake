@@ -13,4 +13,4 @@ import           Development.Shake
 import           System.Directory
 import           System.IO.Temp
 
-$(makeCluster ''Call [''IsBam, ''IsSorted, ''Referenced] 'buildCall)
+$(makeCluster ''Call [''IsBam, ''Sorted, ''Referenced] 'buildCall)
