@@ -10,24 +10,24 @@ import           Language.Haskell.TH
 
 -- Filetypes
 
-class Pathable a => DeDuped a
-class Pathable a => HasRG a
-class Pathable a => IsBam a
-class Pathable a => IsBcf a
-class Pathable a => IsBed a
-class Pathable a => IsCSV a
-class Pathable a => IsFastQ a
-class Pathable a => IsGff a
-class Pathable a => IsMPileup a
-class Pathable a => IsSam a
-class Pathable a => IsTSV a
-class Pathable a => IsVCF a
-class Pathable a => PairedEnd a
-class Pathable a => Sorted a
+class DeDuped a
+class HasRG a
+class IsBam a
+class IsBcf a
+class IsBed a
+class IsCSV a
+class IsFastQ a
+class IsGff a
+class IsMPileup a
+class IsSam a
+class IsTSV a
+class IsVCF a
+class PairedEnd a
+class Sorted a
 
-instance {-# OVERLAPPABLE #-} (Pathable (a :-> b), DeDuped a) => DeDuped (a :-> b)
-instance {-# OVERLAPPABLE #-} (Pathable (a :-> b), HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
-instance {-# OVERLAPPABLE #-} (Pathable (a :-> b), PairedEnd a) => PairedEnd (a :-> b)
+instance {-# OVERLAPPABLE #-} DeDuped a => DeDuped (a :-> b)
+instance {-# OVERLAPPABLE #-} (HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
+instance {-# OVERLAPPABLE #-} PairedEnd a => PairedEnd (a :-> b)
 
 allTags = [''IsFastQ
           ,''DeDuped

@@ -54,12 +54,12 @@ makeSingleTypes ty outtags transtags = do
   tags <- forM outtags $ \t -> do
     a <- newName "a"
     c <- newName "c"
-    return (InstanceD Nothing [AppT (ConT ''Pathable) (VarT a)] (AppT (ConT t) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (VarT c)))) [])
+    return (InstanceD Nothing [] (AppT (ConT t) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (VarT c)))) [])
 
   transtags <- forM transtags $ \t -> do
     a <- newName "a"
     c <- newName "c"
-    return (InstanceD Nothing [AppT (ConT ''Pathable) (VarT a), AppT (ConT t) (VarT a)] (AppT (ConT t) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (VarT c)))) [])
+    return (InstanceD Nothing [AppT (ConT t) (VarT a)] (AppT (ConT t) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (VarT c)))) [])
 
 
   return $ path ++ tags ++ transtags
