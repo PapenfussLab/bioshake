@@ -17,12 +17,10 @@ import           Data.Proxy
 import           Development.Shake.FilePath
 import           GHC.TypeLits
 
-data Sort :: * -> Symbol -> * where
-  Sort :: c -> Sort c a
+data SortBam c = SortBam c
 data DeDup c = DeDup c
 data MappedOnly c = MappedOnly c
 data Pileup c = Pileup c
-
 data AddRGLine c = AddRGLine c String
 
 buildAddRGLine (AddRGLine _ name) (paths -> [input]) [out] =
@@ -34,26 +32,22 @@ buildAddRGLine (AddRGLine _ name) (paths -> [input]) [out] =
 
 $(makeSingleTypes ''AddRGLine [''IsBam, ''HasRG] [''Sorted])
 
-data Convert :: * -> Symbol -> Symbol -> * where
-  Convert :: c -> Convert c a b
+buildSortBam t _ (paths -> [input]) [out] =
+  run "samtools sort" [input] ["-@", show t] ["-o", out]
 
-instance Pathable a => Pathable (a :-> Sort c t) where
-  paths ((paths -> [a]) :-> _) = [hashPath a <.> "sorted.bam"]
-instance Pathable a => Pathable (a :-> MappedOnly c ) where
-  paths ((paths -> [a]) :-> _) = [hashPath a <.> ".mapped_only.bam"]
-instance Pathable a => Pathable (a :-> DeDup c) where
-  paths ((paths -> [a]) :-> _) = [hashPath a <.> ".dedup.bam"]
-instance Pathable a => Pathable (a :-> Pileup c) where
-  paths ((paths -> a) :-> _) = [hashPath (concat a) <.> ".pileup"]
+$(makeSingleTypes ''SortBam [''IsBam, ''Sorted] [])
 
-instance (KnownSymbol t, Pathable a) => Pathable (a :-> Convert c s t) where
-  paths ((paths -> [a]) :-> _) = ["tmp" </> takeFileName a <.> symbolVal (Proxy :: Proxy t)]
+buildMappedOnly t _ (paths -> [input]) [out] =
+  run "samtools view -F 4 -b" [input] ["-@", show t] ["-o", out]
 
-instance Pathable a => Sorted (a :-> Sort c t)
-instance Pathable a => IsBam (a :-> Sort c t)
-instance Pathable a => IsBam (a :-> MappedOnly c)
-instance Pathable a => IsBam (a :-> Convert c s "bam")
-instance Pathable a => IsSam (a :-> Convert c s "sam")
-instance Pathable a => IsBam (a :-> DeDup c)
-instance Pathable a => Sorted (a :-> DeDup c)
-instance Pathable a => IsMPileup (a :-> Pileup c)
+$(makeSingleTypes ''MappedOnly [''IsBam] [])
+
+buildPileup _ a@(paths -> inputs) [out] =
+  run "samtools mpileup -q1 -B" ["-f", getRef a] inputs ["-o", out]
+
+$(makeSingleTypes ''Pileup [''IsMPileup] [])
+
+buildDedup _ (paths -> [input]) [out] =
+  run "samtools rmdup" [input] [out]
+
+$(makeSingleTypes ''DeDup [''IsBam] [])

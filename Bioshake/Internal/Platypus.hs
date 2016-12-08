@@ -14,12 +14,13 @@ import           System.Posix.Files           (createLink, rename)
 
 data Call c = Call c
 
-buildPlatypus _ a@(paths -> inputs) [out] = do
+buildPlatypus t _ a@(paths -> inputs) [out] = do
   let bais = map ( <.> "bai" ) inputs
   lift $ need bais
   run "platypus callVariants"
     ["--bamFiles=" ++ intercalate "," inputs]
     ["--refFile=" ++ getRef a]
     ["--output=" ++ out]
+    ["--nCPU=" ++ show t]
 
 $(makeSingleTypes ''Call [''IsVCF] [])

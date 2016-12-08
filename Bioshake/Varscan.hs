@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
@@ -11,3 +12,11 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeSingleThread ''CallSomatic [''IsMPileup] 'buildVarscan)
+
+--callSomatic :: CallSomatic ()
+--callSomatic = CallSomatic ()
+--
+--instance IsMPileup a => Buildable (a :-> CallSomatic ()) where
+--  build pipe@(a :-> b) =
+--    let outs = paths pipe in
+--      withCmd 1 $ buildVarscan b a outs

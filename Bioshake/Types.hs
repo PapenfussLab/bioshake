@@ -13,11 +13,11 @@ import qualified Data.Set                         as S
 import           Data.String
 import           Development.Shake
 
-data a :-> b where (:->) :: Buildable a b => a -> b -> a :-> b
+data a :-> b where (:->) :: a -> b -> a :-> b
 infixl 1 :->
 
-class Buildable a b where
-  build :: Implicit_ Resource => b -> a -> [FilePath] -> Action ()
+class Buildable a where
+  build :: Implicit_ Resource => a -> Action ()
 
 type Compiler = StateT (S.Set [FilePath]) Rules
 
@@ -28,14 +28,14 @@ class Compilable a where
   compile :: Implicit_ Resource => a -> Compiler ()
   compile = return $ return mempty
 
-instance (Pathable a, Pathable (a :-> b), Compilable a) => Compilable (a :-> b) where
+instance (Pathable a, Pathable (a :-> b), Compilable a, Buildable (a :-> b)) => Compilable (a :-> b) where
   compile pipe@(a :-> b) = do
     let outs = paths pipe
     set <- get
     when (outs `S.notMember` set) $ do
       lift $ outs &%> \_ -> do
         need (paths a)
-        build b a outs
+        build pipe
       put (outs `S.insert` set)
     compile a
 

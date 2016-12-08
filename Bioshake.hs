@@ -60,8 +60,8 @@ out = Out
 instance Pathable (a :-> Out) where
   paths (_ :-> Out outs) = outs
 
-instance Pathable a => Buildable a Out where
-  build _ (paths -> inputs) = zipWithM_ ((liftIO .) . copyFile) inputs
+instance Pathable a => Buildable (a :-> Out) where
+  build ((paths -> inputs) :-> Out outs) = zipWithM_ ((liftIO .) . copyFile) inputs outs
 
 $(allTransTagsPipe ''Out)
 

@@ -100,10 +100,12 @@ makeSingleThread ty tags fun = do
   constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (ConE '()))) []
 
   a <- newName "a"
-  inputs <- newName "inputs"
-  out <- newName "out"
+  a2 <- newName "a2"
+  b <- newName "b"
+  pipe <- newName "pipe"
+  outs <- newName "outs"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (TupleT 0))) [FunD 'build [Clause [VarP a,VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withCmd) (LitE (IntegerL 1))) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (TupleT 0)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (VarP b))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withCmd) (LitE (IntegerL 1))) (AppE (AppE (AppE (VarE fun) (VarE b)) (VarE a2)) (VarE outs))))) []]]
 
   return [constructor, build]
 
@@ -147,12 +149,14 @@ makeThreaded ty tags fun = do
   constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param_))) []
 
   a <- newName "a"
+  a2 <- newName "a2"
   b <- newName "b"
   inputs <- newName "inputs"
-  out <- newName "out"
+  outs <- newName "outs"
+  pipe <- newName "pipe"
   t <- newName "t"
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Threads))) [FunD 'build [Clause [AsP a (ConP con (AsP b (ConP 'Threads [VarP t]) : replicate (length conArrTypes) WildP)), VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withCmd) (VarE t)) (SigE (AppE (AppE (AppE (AppE (VarE fun) (VarE t)) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0))))) []]]
+  build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (ConT ''Threads)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (AsP b (ConP con (ConP 'Threads [VarP t] : replicate (length conArrTypes) WildP))))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withCmd) (VarE t)) (AppE (AppE (AppE (AppE (VarE fun) (VarE t)) (VarE b)) (VarE a2)) (VarE outs))))) []]]
 
   return [constructorSig, constructor, build]
 
