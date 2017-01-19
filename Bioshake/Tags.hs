@@ -20,8 +20,10 @@ class IsFastQ a
 class IsGff a
 class IsMPileup a
 class IsSam a
+class IsSeqzGZ a
 class IsTSV a
 class IsVCF a
+class IsTGZ a
 class PairedEnd a
 class Sorted a
 
@@ -39,8 +41,10 @@ allTags = [''IsFastQ
           ,''IsGff
           ,''IsMPileup
           ,''IsSam
+          ,''IsSeqzGZ
           ,''IsTSV
           ,''IsVCF
+          ,''IsTGZ
           ,''PairedEnd
           ,''Sorted]
 

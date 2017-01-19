@@ -12,6 +12,7 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeSingleThread ''CallSomatic [''IsMPileup] 'buildVarscan)
+$(makeSingleThread ''CopyNumber [''IsMPileup] 'buildCopyNumber)
 
 --callSomatic :: CallSomatic ()
 --callSomatic = CallSomatic ()

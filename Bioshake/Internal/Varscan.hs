@@ -14,6 +14,7 @@ import           System.Posix.Files         (createLink, rename)
 import System.Directory (copyFile)
 
 data CallSomatic c = CallSomatic c
+data CopyNumber c = CopyNumber c
 
 buildVarscan _ a@(paths -> [input]) [out] = do
   () <- run "varscan somatic"
@@ -25,3 +26,16 @@ buildVarscan _ a@(paths -> [input]) [out] = do
   liftIO $ appendFile out indels
 
 $(makeSingleTypes ''CallSomatic [''IsVCF] [])
+
+buildCopyNumber _ a@(paths -> [input]) [out] = do
+  () <- run "varscan copynumber"
+    input
+    out
+    "--mpileup 1"
+  liftIO $ copyFile (out <.> "snp") out
+  indels <- fmap (unlines . filter (\(c:_) -> c /= '#') . lines) . liftIO $ readFile (out <.> "indel")
+  liftIO $ appendFile out indels
+
+class IsCNV a
+
+$(makeSingleTypes ''CopyNumber [''IsCNV] [])

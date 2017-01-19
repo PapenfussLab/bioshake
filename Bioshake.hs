@@ -11,6 +11,7 @@
 module Bioshake( module Types
                , module Implicit
                , module Tags
+               , All(..)
                , Referenced(..)
                , Capture(..)
                , ignoringIOErrors
