@@ -1,0 +1,62 @@
+name:                bioshake
+version:             0.1.0.0
+synopsis:            Bioinformatics pipelines with shake
+-- description:         
+license:             ISC
+license-file:        LICENSE
+author:              Justin Bedo
+maintainer:          cu@cua0.org
+-- copyright:           
+-- category:            
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     Bioshake
+                     , Bioshake.Types
+                     , Bioshake.Platypus
+                     , Bioshake.Tags
+                     , Bioshake.TH
+                     , Bioshake.FREEC
+                     , Bioshake.Varscan
+                     , Bioshake.Samtools
+                     , Bioshake.Cutadapt
+                     , Bioshake.ADTEx
+                     , Bioshake.Sequenza
+                     , Bioshake.Picard
+                     , Bioshake.BWA
+                     , Bioshake.SnpEff
+                     , Bioshake.Implicit
+  -- other-modules:       
+  other-extensions:    FlexibleContexts
+                     , FlexibleInstances
+                     , GADTs
+                     , MultiParamTypeClasses
+                     , Rank2Types
+                     , ScopedTypeVariables
+                     , TemplateHaskell
+                     , TypeOperators
+                     , UndecidableInstances
+                     , ViewPatterns
+                     , DeriveFunctor
+                     , StandaloneDeriving
+                     , TypeSynonymInstances
+                     , DataKinds
+                     , KindSignatures
+  build-depends:       base >=4.9 && <4.10
+                     , transformers >=0.5 && <0.6
+                     , containers >=0.5 && <0.6
+                     , template-haskell >=2.11 && <2.12
+                     , directory >=1.2 && <1.3
+                     , binary >=0.8 && <0.9
+                     , bytestring >=0.10 && <0.11
+                     , unix >=2.7 && <2.8
+                     , cryptonite
+                     , free
+                     , split
+                     , temporary
+                     , shake
+                     , mtl
+  -- hs-source-dirs:      
+  default-language:    Haskell2010

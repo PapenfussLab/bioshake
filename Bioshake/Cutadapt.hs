@@ -1,25 +1,12 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
-{-# LANGUAGE ViewPatterns          #-}
-module Bioshake.Cutadapt(trim) where
+module Bioshake.Cutadapt where
 
 import           Bioshake
 import           Bioshake.Internal.Cutadapt
+import           Bioshake.TH
 import           Development.Shake
 
-trim :: Seq -> Trim ()
-trim = Trim ()
-
-instance IsFastQ a => Buildable a (Trim ()) where
-  build (Trim _ three') (paths -> [input]) [out] =
-    cmd "cutadapt"
-      ["-a", show three']
-      ["-o", out]
-      [input]
-  build (Trim _ three') (paths -> inputs@[_, _]) [out1, out2] =
-    cmd "cutadapt"
-      ["-a", show three']
-      ["-o", out1]
-      ["-p", out2]
-      inputs
+$(makeSingleThread ''Trim [''IsFastQ] 'buildTrim)
