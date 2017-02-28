@@ -14,49 +14,59 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Bioshake
-                     , Bioshake.Types
+                     , Bioshake.ADTEx
+                     , Bioshake.BWA
+                     , Bioshake.Cutadapt
+                     , Bioshake.FREEC
+                     , Bioshake.Implicit
+                     , Bioshake.Picard
                      , Bioshake.Platypus
+                     , Bioshake.Samtools
+                     , Bioshake.Sequenza
+                     , Bioshake.SnpEff
                      , Bioshake.Tags
                      , Bioshake.TH
-                     , Bioshake.FREEC
+                     , Bioshake.Types
                      , Bioshake.Varscan
-                     , Bioshake.Samtools
-                     , Bioshake.Cutadapt
-                     , Bioshake.ADTEx
-                     , Bioshake.Sequenza
-                     , Bioshake.Picard
-                     , Bioshake.BWA
-                     , Bioshake.SnpEff
-                     , Bioshake.Implicit
-  -- other-modules:       
-  other-extensions:    FlexibleContexts
+  other-modules:       Bioshake.Internal.ADTEx
+                     , Bioshake.Internal.BWA
+                     , Bioshake.Internal.Cutadapt
+                     , Bioshake.Internal.FREEC
+                     , Bioshake.Internal.Picard
+                     , Bioshake.Internal.Platypus
+                     , Bioshake.Internal.Samtools
+                     , Bioshake.Internal.Sequenza
+                     , Bioshake.Internal.SnpEff
+                     , Bioshake.Internal.Varscan
+
+  other-extensions:    DataKinds
+                     , DeriveFunctor
+                     , FlexibleContexts
                      , FlexibleInstances
                      , GADTs
+                     , KindSignatures
                      , MultiParamTypeClasses
                      , Rank2Types
                      , ScopedTypeVariables
+                     , StandaloneDeriving
                      , TemplateHaskell
                      , TypeOperators
+                     , TypeSynonymInstances
                      , UndecidableInstances
                      , ViewPatterns
-                     , DeriveFunctor
-                     , StandaloneDeriving
-                     , TypeSynonymInstances
-                     , DataKinds
-                     , KindSignatures
   build-depends:       base >=4.9 && <4.10
-                     , transformers >=0.5 && <0.6
-                     , containers >=0.5 && <0.6
-                     , template-haskell >=2.11 && <2.12
-                     , directory >=1.2 && <1.3
                      , binary >=0.8 && <0.9
                      , bytestring >=0.10 && <0.11
-                     , unix >=2.7 && <2.8
+                     , containers >=0.5 && <0.6
                      , cryptonite
+                     , directory >=1.2 && <1.4
                      , free
-                     , split
-                     , temporary
-                     , shake
                      , mtl
+                     , shake
+                     , split
+                     , template-haskell >=2.11 && <2.12
+                     , temporary
+                     , transformers >=0.5 && <0.6
+                     , unix >=2.7 && <2.8
   -- hs-source-dirs:      
   default-language:    Haskell2010
