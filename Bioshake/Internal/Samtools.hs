@@ -17,11 +17,11 @@ import           Data.Proxy
 import           Development.Shake.FilePath
 import           GHC.TypeLits
 
-data SortBam c = SortBam c
-data DeDup c = DeDup c
-data MappedOnly c = MappedOnly c
-data Pileup c = Pileup c
-data AddRGLine c = AddRGLine c String
+data SortBam c = SortBam c deriving Show
+data DeDup c = DeDup c deriving Show
+data MappedOnly c = MappedOnly c deriving Show
+data Pileup c = Pileup c deriving Show
+data AddRGLine c = AddRGLine c String deriving Show
 
 buildAddRGLine (AddRGLine _ name) (paths -> [input]) [out] =
   run "samtools addreplacerg"

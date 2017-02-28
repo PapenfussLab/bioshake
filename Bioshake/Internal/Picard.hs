@@ -14,9 +14,9 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           System.IO.Temp
 
-data MarkDups c = MarkDups c
-data DeDup c = DeDup c
-data FixMates c = FixMates c
+data MarkDups c = MarkDups c deriving Show
+data DeDup c = DeDup c deriving Show
+data FixMates c = FixMates c deriving Show
 
 buildMarkDups _ (paths -> [input]) [out] =
   run "picard MarkDuplicates"

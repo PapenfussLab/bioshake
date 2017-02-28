@@ -11,7 +11,7 @@ import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-data Call c = Call c
+data Call c = Call c deriving Show
 
 buildADTEx _  a@(paths -> [normal, tumour]) [out] =
   let bed = getBED a

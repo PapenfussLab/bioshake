@@ -13,7 +13,7 @@ import           Development.Shake.FilePath
 import           System.Directory
 import           System.Posix.Files         (createLink, rename)
 
-data Annotate c = Annotate c
+data Annotate c = Annotate c deriving Show
 
 buildAnnot _ a@(paths -> [input]) [out] = do
   pwd <- liftIO getCurrentDirectory

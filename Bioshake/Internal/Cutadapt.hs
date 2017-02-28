@@ -10,7 +10,7 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
-data Trim c = Trim c Seq
+data Trim c = Trim c Seq deriving Show
 
 buildTrim (Trim _ three') (paths -> inputs) outs =
   case inputs of

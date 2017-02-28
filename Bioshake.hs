@@ -54,7 +54,7 @@ instance {-# OVERLAPPABLE #-} Capture a => Capture (a :-> b) where
   getBED (a :-> _) = getBED a
 
 -- Hard naming outputs
-data Out = Out [FilePath]
+data Out = Out [FilePath] deriving Show
 
 out = Out
 
@@ -85,6 +85,9 @@ instance Referenced a => Referenced (All a) where
 
 instance Capture a => Capture (All a) where
   getBED (All as) = foldl1 (\l r -> if l == r then l else error "cannot combine mixed captures") $ fmap getBED as
+
+instance Show a => Show (All a) where
+  show (All as) = foldl1 (\l r -> l ++ "," ++ r) $ fmap show as
 
 $(allTransTags ''All)
 

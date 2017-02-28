@@ -12,7 +12,7 @@ import           Bioshake.TH
 import           Data.List
 import           Development.Shake.FilePath
 
-data Align c = Align c
+data Align c = Align c deriving Show
 
 buildBWA t _ a@(paths -> inputs) [out] =
     run "bwa mem"

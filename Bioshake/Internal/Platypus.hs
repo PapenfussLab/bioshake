@@ -12,7 +12,7 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           System.Posix.Files           (createLink, rename)
 
-data Call c = Call c
+data Call c = Call c deriving Show
 
 buildPlatypus t _ a@(paths -> inputs) [out] = do
   let bais = map ( <.> "bai" ) inputs

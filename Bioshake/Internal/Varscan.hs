@@ -13,8 +13,8 @@ import           Development.Shake.FilePath
 import           System.Posix.Files         (createLink, rename)
 import System.Directory (copyFile)
 
-data CallSomatic c = CallSomatic c
-data CopyNumber c = CopyNumber c
+data CallSomatic c = CallSomatic c deriving Show
+data CopyNumber c = CopyNumber c deriving Show
 
 buildVarscan _ a@(paths -> [input]) [out] = do
   () <- run "varscan somatic"

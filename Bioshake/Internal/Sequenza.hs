@@ -13,7 +13,7 @@ import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-data Pileup2Seqz c = Pileup2Seqz c
+data Pileup2Seqz c = Pileup2Seqz c deriving Show
 
 class GC a where
   getGC :: a -> FilePath

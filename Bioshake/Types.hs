@@ -42,6 +42,8 @@ instance (Pathable a, Pathable (a :-> b), Compilable a, Buildable (a :-> b)) => 
 class Pathable a where
   paths :: a -> [FilePath]
 
+instance (Show a, Show b) => Show (a :-> b) where show (a :-> b) = show a ++ " :-> " ++ show b
+
 -- Nucleotides
 data Nuc = A | C | G | T
   deriving (Eq, Show)
@@ -66,5 +68,5 @@ instance IsString Seq where
 
 -- For threaded config
 
-data Threads = Threads Int
+data Threads = Threads Int deriving Show
 

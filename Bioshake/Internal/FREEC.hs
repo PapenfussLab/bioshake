@@ -13,7 +13,7 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           System.Posix.Files           (createLink, rename)
 
-data CNVExome c = CNVExome c
+data CNVExome c = CNVExome c deriving Show
 
 buildFREECExome t _ a@(paths -> [normal, tumour]) [out] =
   withTempDirectory' "tmp/" "FREEC" $ \tmp -> do
