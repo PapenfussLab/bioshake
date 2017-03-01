@@ -16,6 +16,7 @@ library
   exposed-modules:     Bioshake
                      , Bioshake.ADTEx
                      , Bioshake.BWA
+                     , Bioshake.Cluster.Torque
                      , Bioshake.Cutadapt
                      , Bioshake.FREEC
                      , Bioshake.Implicit
