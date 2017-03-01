@@ -15,6 +15,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Bioshake
                      , Bioshake.ADTEx
+                     , Bioshake.Bedtools
                      , Bioshake.BWA
                      , Bioshake.Cluster.Torque
                      , Bioshake.Cutadapt
@@ -30,6 +31,7 @@ library
                      , Bioshake.Types
                      , Bioshake.Varscan
   other-modules:       Bioshake.Internal.ADTEx
+                     , Bioshake.Internal.Bedtools
                      , Bioshake.Internal.BWA
                      , Bioshake.Internal.Cutadapt
                      , Bioshake.Internal.FREEC
