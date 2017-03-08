@@ -8,6 +8,13 @@
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
+
+-- | Bioshake is a small framework for specifying bioinformatics pipelines. The
+-- goal is to specify phases in a forward chaining manner (as is natural for the
+-- domain) while guaranteeing as much robustness as possible to errors such as
+-- mismatched file types or other attributes. Almost everything is handled in
+-- the type system, and pipelines are compiled down to "Development.Shake"
+-- 'Rules' for actual execution.
 module Bioshake( module Types
                , module Implicit
                , module Tags
@@ -37,19 +44,28 @@ import           System.Directory                 (copyFile,
                                                    removeDirectoryRecursive)
 import           System.IO.Temp                   (createTempDirectory)
 
--- Referenced (to track reference genomes automatically)
+
+-- | Attaches a reference genome.
 class Referenced a where
+  -- | The path to the reference fasta file.
   getRef :: a -> FilePath
-  name :: a -> String -- e.g., hg19
+
+  -- | The short name, e.g., hg19.
+  name :: a -> String
+
+  -- | Path to dbNSFP for the genome
   dbnsfp :: a -> FilePath
   dbnsfp _ = error "dbNSFP not available"
 
+-- | References flows down the pipeline regardless of the phase: this allows
+-- reference mismatch errors to be detected in the case of merges such as
+-- "withAll".
 instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
   name (a :-> _) = name a
   dbnsfp (a :-> _) = dbnsfp a
 
--- Same for captures
+-- | Asserts a capture region.
 class Capture a where
   getBED :: a -> FilePath
 
@@ -59,6 +75,9 @@ instance {-# OVERLAPPABLE #-} Capture a => Capture (a :-> b) where
 -- Hard naming outputs
 data Out = Out [FilePath] deriving Show
 
+-- | Explicitly names an output product. Outputs are automatically named in the
+-- temporary directory except for this special case: this is how you obtain the
+-- artifacts you are specifically interested in.
 out = Out
 
 instance Pathable (a :-> Out) where
@@ -73,6 +92,8 @@ $(allTransTagsPipe ''Out)
 data All a where
   All :: (Functor f, Foldable f) => f a -> All a
 
+-- | Fan-in style combinator. Takes a collection of combines their output paths
+-- as input paths for the subsequent phase.
 withAll :: (Functor f, Foldable f) => f a -> All a
 withAll = All
 
@@ -95,13 +116,25 @@ instance Show a => Show (All a) where
 
 $(allTransTags ''All)
 
-bioshake :: Int -> ShakeOptions -> (Implicit_ Resource => Rules ()) -> IO ()
+-- | Entry point to bioshake. Like 'shakeArgs' but also takes a number of
+-- threads to use.
+bioshake :: Int -- ^ Number of threads
+         -> ShakeOptions -- ^ Options to pass to 'shakeArgs'.
+         -> (Implicit_ Resource => Rules ()) -> IO ()
 bioshake n opts cont = shakeArgs opts{shakeThreads = n} $ do
   res <- newResource "cpus" n
   cont $~ res
 
--- Temporary files
-withTempDirectory :: FilePath -> String -> (FilePath -> Action b) -> Action b
+-- | Creates a temporary directory under a target directory according to a
+-- naming template. The directory is cleaned up after executing the action. This
+-- differs from "Development.Shake"'s 'withTempDir' in that it takes a target
+-- directory and template whereas "Development.Shake" uses /tmp. This is
+-- generally more useful, as ./tmp is used as the target directory by convention
+-- in BioShake.
+withTempDirectory :: FilePath -- ^ Target directory under which the temporary directory is created
+                  -> String -- ^ Template for the temporary directory name
+                  -> (FilePath -> Action b) -- ^ Action to carry out
+                  -> Action b
 withTempDirectory targetDir template act = do
   path <- liftIO $ createTempDirectory targetDir template
   act path `actionFinally` (liftIO . ignoringIOErrors $ removeDirectoryRecursive path)
