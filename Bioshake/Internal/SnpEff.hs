@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE ViewPatterns      #-}
@@ -14,12 +15,22 @@ import           System.Directory
 import           System.Posix.Files         (createLink, rename)
 
 data Annotate c = Annotate c deriving Show
+data DBNSFP c = DBNSFP c deriving Show
+
+class SnpEffAnnotated c
 
 buildAnnot _ a@(paths -> [input]) [out] = do
   pwd <- liftIO getCurrentDirectory
-  run "snpEff" (name a)
+  run "snpeff" (name a)
     ["-dataDir", pwd </> "tmp"]
     input
     [">", out]
 
-$(makeSingleTypes ''Annotate [''IsVCF] [])
+buildDBNSFP _ a@(paths -> [input]) [out] = do
+  let db = dbnsfp a
+  lift $ need [db, db <.> "tbi"]
+  pwd <- liftIO getCurrentDirectory
+  run "snpsift dbnsfp" ["-db", db] [input] [">", out]
+
+$(makeSingleTypes ''Annotate [''IsVCF, ''SnpEffAnnotated] [])
+$(makeSingleTypes ''DBNSFP [''IsVCF] [])

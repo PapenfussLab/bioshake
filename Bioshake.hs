@@ -41,10 +41,13 @@ import           System.IO.Temp                   (createTempDirectory)
 class Referenced a where
   getRef :: a -> FilePath
   name :: a -> String -- e.g., hg19
+  dbnsfp :: a -> FilePath
+  dbnsfp _ = error "dbNSFP not available"
 
 instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
   name (a :-> _) = name a
+  dbnsfp (a :-> _) = dbnsfp a
 
 -- Same for captures
 class Capture a where
@@ -82,6 +85,7 @@ instance Pathable a => Pathable (All a) where
 instance Referenced a => Referenced (All a) where
   getRef (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap getRef as
   name (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap name as
+  dbnsfp (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap dbnsfp as
 
 instance Capture a => Capture (All a) where
   getBED (All as) = foldl1 (\l r -> if l == r then l else error "cannot combine mixed captures") $ fmap getBED as
