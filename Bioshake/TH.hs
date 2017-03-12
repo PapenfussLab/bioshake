@@ -6,6 +6,13 @@
 {-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+
+
+-- | Bioshake is built on a lot of instantiation and template haskell can be
+-- used to derive instances for the most common types of processes. In
+-- particular, this module provides TH functions for handling either single or
+-- multithreaded processes with single or multiple outputs (of the same type).
+-- Most things fit into these categories.
 module Bioshake.TH where
 
 import           Bioshake
@@ -39,7 +46,24 @@ sha1 = H.hash
 hashPath :: Binary b => b -> FilePath
 hashPath = ("tmp" </> ) . show . sha1 . toStrict . encode
 
-makeSingleTypes :: Name -> [Name] -> [Name] -> DecsQ
+-- | Generate instances of 'Pathable' and for all the tags associated with the
+-- output (both transitive "Bioshake.Tags" and absolute "Bioshake.Tags") for
+-- actions that produce a single output file. Transitive "Bioshake.Tags" are
+-- those that if they exist on the input then they will exist on the output
+-- (e.g., a 'Sorted' input may result in a 'Sorted' output because the action
+-- does not reorder things). Absolute "Bioshake.Tags" are those that hold on all
+-- outputs of the action. These include the file type (e.g., 'IsBam').
+makeSingleTypes :: Name -- ^ The type to generate instances for
+                -> [Name] -- ^ A list of absolute "Bioshake.Tags". The first of
+                          -- these must be of the form IsEXT as it is used to
+                          -- generate the extension of the output. Examples
+                          -- include 'IsVCF', 'IsBam', and 'IsSam'. The Is part
+                          -- is stripped and the lower case remainder used for
+                          -- the extension. These tags will hold on outputs
+                          -- produced by this action.
+                -> [Name] -- ^ Transitive tags. If these hold on the input then
+                          -- they transit to the output.
+                -> DecsQ
 makeSingleTypes ty outtags transtags = do
   let name = nameBase ty
       Just mod = nameModule ty
@@ -64,7 +88,19 @@ makeSingleTypes ty outtags transtags = do
 
   return $ path ++ tags ++ transtags
 
-makeMultiTypes :: Name -> [Name] -> [Name] -> DecsQ
+-- | Same as 'makeSingleTypes' but for actions that produce an output file for
+-- each input file.
+makeMultiTypes :: Name -- ^ The type to generate instances for
+               -> [Name] -- ^ A list of absolute "Bioshake.Tags". The first of
+                         -- these must be of the form IsEXT as it is used to
+                         -- generate the extension of the output. Examples
+                         -- include 'IsVCF', 'IsBam', and 'IsSam'. The Is part
+                         -- is stripped and the lower case remainder used for
+                         -- the extension. These tags will hold on outputs
+                         -- produced by this action.
+               -> [Name] -- ^ Transitive tags. If these hold on the input then
+                         -- they transit to the output.
+               -> DecsQ
 makeMultiTypes ty outtags transtags = do
   let name = nameBase ty
       Just mod = nameModule ty
