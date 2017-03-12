@@ -74,7 +74,7 @@ makeMultiTypes ty outtags transtags = do
       ext = map toLower ext'
 
 
-  path <- [d| instance Pathable a => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = map (\x -> hashPath x <.> lastMod <.> name <.> ext) (paths a) |]
+  path <- [d| instance (Show a, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = map (\x -> hashPath (x, show a) <.> lastMod <.> name <.> ext) (paths a) |]
 
   tags <- forM outtags $ \t -> do
     a <- newName "a"
