@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
-module Bioshake.Sequenza where
+module Bioshake.Sequenza (pileup2Seqz, bin, GC(..)) where
 
 import           Bioshake
 import           Bioshake.Internal.Sequenza

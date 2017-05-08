@@ -41,6 +41,7 @@ class IsSeqzGZ a
 class IsTSV a
 class IsVCF a
 class IsTGZ a
+class IsCov a
 
 
 allTags = [''IsFastQ
@@ -57,6 +58,7 @@ allTags = [''IsFastQ
           ,''IsTSV
           ,''IsVCF
           ,''IsTGZ
+          ,''IsCov
           ,''PairedEnd
           ,''Sorted]
 

@@ -1,13 +1,14 @@
-{-# LANGUAGE FlexibleContexts      #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE GADTs                 #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE Rank2Types            #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE TypeOperators         #-}
-{-# LANGUAGE UndecidableInstances  #-}
-{-# LANGUAGE ViewPatterns          #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE Rank2Types                 #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeOperators              #-}
+{-# LANGUAGE UndecidableInstances       #-}
+{-# LANGUAGE ViewPatterns               #-}
 
 -- | Bioshake is a small framework for specifying bioinformatics pipelines. The
 -- goal is to specify phases in a forward chaining manner (as is natural for the
@@ -25,7 +26,8 @@ module Bioshake( module Types
                , withTempDirectory
                , bioshake
                , out
-               , withAll) where
+               , withAll
+               , withPair) where
 
 import           Bioshake.Cluster.Torque
 import           Bioshake.Implicit                as Implicit
@@ -97,6 +99,10 @@ data All a where
 withAll :: (Functor f, Foldable f) => f a -> All a
 withAll = All
 
+-- | Convenience function for pairs
+withPair :: a -> a -> All a
+withPair a b = All [a, b]
+
 instance Compilable a => Compilable (All a) where
   compile (All as) = mapM_ compile as
 
@@ -115,6 +121,7 @@ instance Show a => Show (All a) where
   show (All as) = foldl1 (\l r -> l ++ "," ++ r) $ fmap show as
 
 $(allTransTags ''All)
+
 
 -- | Entry point to bioshake. Like 'shakeArgs' but also takes a number of
 -- threads to use.
