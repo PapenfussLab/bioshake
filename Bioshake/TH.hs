@@ -160,11 +160,12 @@ makeSingleCluster ty tags fun = do
   constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param_))) []
 
   a <- newName "a"
-  inputs <- newName "inputs"
-  out <- newName "out"
+  a2 <- newName "a2"
+  outs <- newName "out"
+  pipe <- newName "pipe"
   config <- newName "config"
-  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Config))) [FunD 'build [Clause [AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP)),VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (VarE fun) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config),AppE (ConE 'Right) (AppE (ConE 'CPUs) (LitE (IntegerL 1)))])) ) []]]
+  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : ''Show : tags
+  build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (ConT ''Config)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP))))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (VarE fun)  (VarE a)) (VarE a2)) (VarE outs)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config),AppE (ConE 'Right) (AppE (ConE 'CPUs) (LitE (IntegerL 1)))])))) []]]
 
   return [constructorSig, constructor, build]
 
@@ -187,7 +188,6 @@ makeThreaded ty tags fun = do
   a <- newName "a"
   a2 <- newName "a2"
   b <- newName "b"
-  inputs <- newName "inputs"
   outs <- newName "outs"
   pipe <- newName "pipe"
   t <- newName "t"
@@ -212,11 +212,12 @@ makeCluster ty tags fun = do
   constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param_))) []
 
   a <- newName "a"
-  inputs <- newName "inputs"
-  out <- newName "out"
+  a2 <- newName "a2"
+  pipe <- newName "pipe"
+  outs <- newName "outs"
   config <- newName "config"
-  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
-  build <- return $ InstanceD Nothing tags' (AppT (AppT (ConT ''Buildable) (VarT a)) (AppT (ConT ty) (ConT ''Config))) [FunD 'build [Clause [AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP)),VarP inputs,VarP out] (NormalB (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (AppE (VarE fun) (AppE (VarE 'getCPUs) (VarE config))) (VarE a)) (VarE inputs)) (VarE out)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config)]))) []]]
+  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : ''Show : tags
+  build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (ConT ''Config)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP))))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (AppE (VarE fun) (AppE (VarE 'getCPUs) (VarE config))) (VarE a)) (VarE a2)) (VarE outs)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config)])))) []]]
 
   return [constructorSig, constructor, build]
 

@@ -2,13 +2,14 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
-module Bioshake.Cluster.Platypus where
+module Bioshake.Cluster.ADTEx where
 
 import           Bioshake
-import           Bioshake.Internal.Platypus
+import           Bioshake.Cluster.Torque
+import           Bioshake.Internal.ADTEx
 import           Bioshake.TH
 import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeCluster ''Call [''Referenced, ''IsBam] 'buildPlatypus)
+$(makeSingleCluster ''Call [''Capture, ''IsBam, ''DeDuped] 'buildADTEx)

@@ -2,13 +2,13 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
-module Bioshake.Cluster.Platypus where
+module Bioshake.Cluster.Bedtools where
 
 import           Bioshake
-import           Bioshake.Internal.Platypus
+import           Bioshake.Cluster.Torque
+import           Bioshake.Internal.Bedtools
 import           Bioshake.TH
-import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeCluster ''Call [''Referenced, ''IsBam] 'buildPlatypus)
+$(makeSingleCluster ''CaptureOnly [''Capture, ''IsVCF] 'buildBedtoolsCaptureOnly)

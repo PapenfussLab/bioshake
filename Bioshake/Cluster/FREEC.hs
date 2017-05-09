@@ -2,13 +2,14 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
-module Bioshake.Cluster.Platypus where
+module Bioshake.Cluster.FREEC where
 
 import           Bioshake
-import           Bioshake.Internal.Platypus
+import           Bioshake.Cluster.Torque
+import           Bioshake.Internal.FREEC
 import           Bioshake.TH
 import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeCluster ''Call [''Referenced, ''IsBam] 'buildPlatypus)
+$(makeCluster ''CNVExome [''Referenced, ''Capture, ''IsMPileup] 'buildFREECExome)

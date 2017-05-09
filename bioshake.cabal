@@ -17,19 +17,30 @@ library
                      , Bioshake.ADTEx
                      , Bioshake.Bedtools
                      , Bioshake.BWA
-                     , Bioshake.Cluster.Torque
                      , Bioshake.Cutadapt
                      , Bioshake.FREEC
-                     , Bioshake.Implicit
                      , Bioshake.Picard
                      , Bioshake.Platypus
                      , Bioshake.Samtools
                      , Bioshake.Sequenza
                      , Bioshake.SnpEff
+                     , Bioshake.Varscan
+                     , Bioshake.Cluster.ADTEx
+                     , Bioshake.Cluster.Bedtools
+                     , Bioshake.Cluster.BWA
+                     , Bioshake.Cluster.Cutadapt
+                     , Bioshake.Cluster.FREEC
+                     , Bioshake.Cluster.Picard
+                     , Bioshake.Cluster.Platypus
+                     , Bioshake.Cluster.Samtools
+                     , Bioshake.Cluster.Sequenza
+                     , Bioshake.Cluster.SnpEff
+                     , Bioshake.Cluster.Varscan
+                     , Bioshake.Cluster.Torque
+                     , Bioshake.Implicit
                      , Bioshake.Tags
                      , Bioshake.TH
                      , Bioshake.Types
-                     , Bioshake.Varscan
   other-modules:       Bioshake.Internal.ADTEx
                      , Bioshake.Internal.Bedtools
                      , Bioshake.Internal.BWA

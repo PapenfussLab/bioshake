@@ -8,7 +8,6 @@ module Bioshake.Cluster.Picard where
 
 import           Bioshake
 import           Bioshake.Cluster.Torque
-import           Bioshake.Implicit
 import           Bioshake.Internal.Picard
 import           Bioshake.TH
 import           Development.Shake
