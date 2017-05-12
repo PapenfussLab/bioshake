@@ -50,19 +50,26 @@ The `compileRules` and `compile` functions have the (again simplified) types
 
 So `compile` takes `Compilable` things (the pipeline in this case) and
 makes something suitable for `compileRules`, which generates the actual shake
-`Rules`. 
+`Rules`.
+
+A Bioshake pipeline must instantiate `Compilable`, but pipelines 
+(and stages) are not themselves `Compiler`s. Unlike vanilla Shake -- in which
+each stage of a build is represented by an object of type `Rules a` -- 
+in Bioshake, there is no concrete datatype representing a stage; rather, 
+each stage is the only inhabitant of its type, and the whole functionality 
+of a stage is determined by the typeclasses that this type instantiates.
+More on this below.
+
+### Direct execution
 
 In our pipeline, the stages `align`, `mappedOnly`, `sortBam`, and
 `deDup` come from different modules such as `Bioshake.BWA` and
 `Bioshake.Samtools`, or their cluster equivalents `Bioshake.Cluster.BWA` and
-`Bioshake.Cluster.Samtools`. More on these modules later.
-
-### Direct execution 
-
-Each module in bioshake represents a tool, such as an aligner. `Bioshake.BWA`
-for example is the module that defines alignment stages using the BWA aligner.
+`Bioshake.Cluster.Samtools`. 
+Each module in bioshake represents a tool, such as an aligner; for example, 
+`Bioshake.BWA` is the module that defines alignment stages using the BWA aligner.
 When a pipeline is executed using this module, the tool is directly invoked on
-the machine that's executing bioshake. Many of these tools are multithreaded,
+the machine that is executing bioshake. Many of these tools are multithreaded,
 and thus you need to declare how many threads to use by default:
 
     instance Default Threads where def = Threads threads
@@ -97,11 +104,22 @@ There are a several configuration options that can be defined:
 
 ### Writing your own stages
 
-First create a datatype to represent your stage:
+As mentioned above, in ordinary Shake, each stage of a build is represented by an object of
+type `Rules a`. By contrast, in Bioshake, each stage inhabits its own type, and
+the functionality of a stage is determined by the typeclasses 
+that its type instantiates. Many of these instances can be automatically generated
+by Template Haskell. The constructor `:->`, which is used to concatenate successive
+stages into a pipeline, is isomorphic to `(,)`.
+
+Here is an example showing how to create your own stage. We will
+create a stage called `Magic` that takes a BAM file as input and
+produces a VCF as output.
+
+First, create a datatype to represent the stage:
 
     data Magic c = Magic c deriving Show
     
-The `c` type here is a configuration type which is used by bioshake to represent
+The `c` type variable is a configuration type which is used by bioshake to represent
 threaded/cluster configuration. You can have other polymorphic types, but the
 last type must be the configuration type. Next, write a function that executes
 the tool:
@@ -109,13 +127,13 @@ the tool:
     buildMagic (Magic c) (paths -> [input]) [out] =
       run "/some/tool" ["-a", "with-flags"] [input] [out]
   
-`run` here is pretty much like a restricted version of shake's `cmd`. Now use
+Here `run` is pretty much like a restricted version of shake's `cmd`. Now use
 template haskell to do the rest:
 
     $(makeSingleTypes ''Magic [''IsVCF] [])
     $(makeSingleThread ''Magic [''IsBAM] 'buildMagic)
 
-`makeSingleTypes` declares `Magic` maps each input file to an output file (in
+The `makeSingleTypes` macro declares that `Magic` maps each input file to an output file (in
 this case `buildMagic` expects a single input and maps it to a single output).
 The first list in the template function declares properties about the _output_
 of the stage: the first must be a `IsEXT` tag, which declares the type of output
