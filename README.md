@@ -1,35 +1,41 @@
 # Bioshake: Bioinformatics pipelining with Shake
 
-Bioshake is a layer on top of Shake that provides explicit dependency
-definitions with wrappers for common tools. Pipelines are defined in terms of
-_stage_ that connect together into simple streams. Here's an example pipeline:
+Bioshake is a bioinformatics workflow tool extending the Shake build system.
+
+Pipelines are defined in terms of
+_stages_ that connect together into simple streams. Here's an example pipeline:
 
     Input :-> align :-> mappedOnly :-> sortBam :-> deDup :-> out ["aligned.bam"]
-  
-In the above each phase takes output from the previous stage and generates
-output for the subsequent phase. Note that there are no mention of files between
-the stages: intermediate files are automatically named. The `out` phase is a
-special phase that simply copies it's input to explicitly named files. This
-allows the outputs that are of interest to be specifically named.
 
-Furthermore, each phase has strong type guarantees. For example, if a stage
-requires a sorted BAM file, it will be a type error to construct a pipeline that
-feeds it an unsorted BAM file. This allows many pipeline errors to be caught at
-compile time rather than runtime.
+Each stage takes its input from the previous stage and generates
+output for the stage that follows. Some features of Bioshake pipelines are
+
+-   There is no need to mention files between
+    the stages: intermediate files are automatically named. The `out` stage 
+    simply copies its input to explicitly named files. 
+-   Each stage has strong type guarantees. For example, if a stage
+    requires a sorted BAM file, it will be a type error to construct a pipeline that
+    feeds it an unsorted BAM file. This allows many pipeline errors to be caught at
+    compile time rather than runtime.
 
 ## How to use
 
-Do something like this:
+Begin with something like this:
 
     main = bioshake threads shakeOptions $ do ...
     
-This initialises bioshake with a certain number of threads and with some shake
-options. The (simplified) type signature of bioshake is
+This initialises bioshake with a certain number of threads and with some Shake
+options. 
+
+The (simplified) type signature of the `bioshake` function  is
 
     bioshake :: Int -> ShakeOptions -> Rules () -> IO ()
     
-hence it expects a bunch of shake `Rules`. You can just define shake rules as
-normal, but we're interested in pipelines, hence we continue the example:
+and so the `do` clause corresponds to a Shake `Rules ()` object; 
+Bioshake pipelines are compiled down to Shake `Rules ()` and so can be partially
+interleaved with them. (In Shake, a `Rules a` object is a (collection of) build rules that return data of type `a`.) 
+
+Within the `Rules ()` block, a pipeline looks like
 
       compileRules $ do
         compile $ 
@@ -37,46 +43,21 @@ normal, but we're interested in pipelines, hence we continue the example:
           
         ...
 
-`compileRules` and `compile` have the (again simplified) types
+The `compileRules` and `compile` functions have the (again simplified) types
 
     compileRules :: Compiler () -> Rules ()
     compile :: Compilable a => a -> Compiler () 
 
-`compile` therefore takes `Compilable` things (the pipeline in this case) and
+So `compile` takes `Compilable` things (the pipeline in this case) and
 makes something suitable for `compileRules`, which generates the actual shake
-`Rules`. In our pipeline, the stages `align`, `mappedOnly`, `sortBam`, and
+`Rules`. 
+
+In our pipeline, the stages `align`, `mappedOnly`, `sortBam`, and
 `deDup` come from different modules such as `Bioshake.BWA` and
 `Bioshake.Samtools`, or their cluster equivalents `Bioshake.Cluster.BWA` and
-`Bioshake.Cluster.Samtools`. More on these modules later
+`Bioshake.Cluster.Samtools`. More on these modules later.
 
-The first stage `input` is probably the most confusing part about getting a
-pipeline running. Stages generate some output that is fed to the next stage in
-the pipeline, hence the first stage has to "generate" some output files, which
-are just the input files on disk. We need some data structure to represent input
-files on the disk:
-
-    data Input = Input deriving Show
-    
-First this is to declare the paths "output" from the stage. As the input stage,
-we just return a list of input files:
-
-    instance Pathable Input where
-      paths _ = ["sample_R1.fastq.gz", "sample_R2.fastq.gz"]
-
-We've assumed the inputs here are paired end reads, hence there are two fastq
-files. This is not sufficient as we must declare our inputs have certain
-properties: it is compilable to shake rules, that the reads are from paired end
-sequencing, that they are fastq files, and furthermore that they should be
-referenced against some genome:
-    
-    instance Compilable Input
-    instance PairedEnd Input
-    instance IsFastQ Input
-    instance Referenced In where
-      getRef _ = "/path/to/hg38.fa"
-      name _ = "hg38"
-    
-## Direct execution 
+### Direct execution 
 
 Each module in bioshake represents a tool, such as an aligner. `Bioshake.BWA`
 for example is the module that defines alignment stages using the BWA aligner.
@@ -95,7 +76,7 @@ could write:
 Note that bioshake will not overcommit resources: the first argument to
 `bioshake` defines the maximum number of concurrent threads at any given time.
 
-## Cluster submission
+### Cluster submission
 
 Stages can be submitted to a cluster instead of executing directly. In this
 case, the `Bioshake.Cluster.*` modules are used. Continuing the BWA example, to
@@ -114,7 +95,7 @@ There are a several configuration options that can be defined:
 4. `Queue`: the queue to submit to
 5. `Module`: a module to load before execution
 
-## Writing your own stages
+### Writing your own stages
 
 First create a datatype to represent your stage:
 
@@ -144,3 +125,32 @@ hold for the input, then they will hold for the output too.
 `makeSingleThread` declares how to build `Magic` things. The list is a bunch of
 tags that must hold for the _input_ files, and the second parameter is just the
 function to build output files given inputs.
+
+### The Input stage
+
+The first stage `input` is probably the most confusing part about getting a
+pipeline running. Stages generate some output that is fed to the next stage in
+the pipeline, hence the first stage has to "generate" some output files, which
+are just the input files on disk. We need some data structure to represent input
+files on the disk:
+
+    data Input = Input deriving Show
+    
+First this is to declare the paths "output" from the stage. As the input stage,
+we just return a list of input files:
+
+    instance Pathable Input where
+      paths _ = ["sample_R1.fastq.gz", "sample_R2.fastq.gz"]
+
+We've assumed the inputs here are paired end reads, hence there are two fastq
+files. This is not sufficient as we must declare our inputs have certain
+properties: it is compilable to shake rules, that the reads are from paired end
+sequencing, that they are fastq files, and furthermore that they should be
+referenced against some genome:
+    
+    instance Compilable Input
+    instance PairedEnd Input
+    instance IsFastQ Input
+    instance Referenced In where
+      getRef _ = "/path/to/hg38.fa"
+      name _ = "hg38"
