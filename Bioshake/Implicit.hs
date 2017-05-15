@@ -11,18 +11,18 @@ import           Unsafe.Coerce
 class Default a where
   def :: a
 
-class Implicit_ a where
-  param_ :: a
+class Implicit a where
+  param :: a
 
-newtype Param_ a b = Param_ (Implicit_ a => b)
+newtype Param a b = Param (Implicit a => b)
 
-setParam_ :: forall a b. a -> (Implicit_ a => b) -> b
-setParam_ a f = unsafeCoerce (Param_ f :: Param_ a b) a
-{-# INLINE setParam_ #-}
+setParam :: forall a b. a -> (Implicit a => b) -> b
+setParam a f = unsafeCoerce (Param f :: Param a b) a
+{-# INLINE setParam #-}
 
-($~) :: forall a b. (Implicit_ a => b) -> a -> b
-($~) f = unsafeCoerce (Param_ f :: Param_ a b)
+($~) :: forall a b. (Implicit a => b) -> a -> b
+($~) f = unsafeCoerce (Param f :: Param a b)
 infixl 1 $~
 {-# INLINE ($~) #-}
 
-instance Default a => Implicit_ a where param_ = def
+instance Default a => Implicit a where param = def

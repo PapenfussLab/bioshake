@@ -18,7 +18,7 @@ module Bioshake.TH where
 import           Bioshake
 import           Bioshake.Cluster.Torque    (Config, TOption (CPUs, Mem),
                                              getCPUs, submit)
-import           Bioshake.Implicit          (Implicit_, param_)
+import           Bioshake.Implicit          (Implicit, param)
 import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.Free
@@ -156,8 +156,8 @@ makeSingleCluster ty tags fun = do
       funType = foldr (\l r -> AppT l r) (AppT (ConT ty) (ConT ''Config)) conArrTypes
 
   consName <- newName name'
-  constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit_) (ConT ''Config)] funType)
-  constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param_))) []
+  constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit) (ConT ''Config)] funType)
+  constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param))) []
 
   a <- newName "a"
   a2 <- newName "a2"
@@ -182,8 +182,8 @@ makeThreaded ty tags fun = do
       funType = foldr (\l r -> AppT l r) (AppT (ConT ty) (ConT ''Threads)) conArrTypes
 
   consName <- newName name'
-  constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit_) (ConT ''Threads)] funType)
-  constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param_))) []
+  constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit) (ConT ''Threads)] funType)
+  constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param))) []
 
   a <- newName "a"
   a2 <- newName "a2"
@@ -208,8 +208,8 @@ makeCluster ty tags fun = do
       funType = foldr (\l r -> AppT l r) (AppT (ConT ty) (ConT ''Config)) conArrTypes
 
   consName <- newName name'
-  constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit_) (ConT ''Config)] funType)
-  constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param_))) []
+  constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit) (ConT ''Config)] funType)
+  constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param))) []
 
   a <- newName "a"
   a2 <- newName "a2"
@@ -257,13 +257,13 @@ withTempDirectory' targetDir template act = do
 run :: CArgs a => a |-> Cmd ()
 run = cmdArgs []
 
-withCmd :: Implicit_ Resource => Int -> Cmd () -> Action ()
+withCmd :: Implicit Resource => Int -> Cmd () -> Action ()
 withCmd t x' = do
     x <- runFreeT x'
     case x of
         Pure _ -> return ()
         Free (CmdF str a) -> do
-            () <- withResource param_ t $ cmd Shell str
+            () <- withResource param t $ cmd Shell str
             withCmd t a
         Free (FinallyF a f a') -> do
             withCmd t a `actionFinally` f

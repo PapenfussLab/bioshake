@@ -21,7 +21,7 @@ infixl 1 :->
 
 -- | Buildable abstracts things that can be turned into shake 'Action's.
 class Buildable a where
-  build :: Implicit_ Resource => a -> Action ()
+  build :: Implicit Resource => a -> Action ()
 
 -- | The compiler tracks the set of output files to ensure duplicate 'Rules' are
 -- not generated. This allows multiple potentially overlapping pipelines to be
@@ -35,7 +35,7 @@ compileRules p = evalStateT p mempty
 -- | Pipelines are 'Compilable' when they can be compiled down to a set of
 -- 'Rules' that build a list of output paths.
 class Compilable a where
-  compile :: Implicit_ Resource => a -> Compiler ()
+  compile :: Implicit Resource => a -> Compiler ()
   compile = return $ return mempty
 
 -- | A pipeline @a :-> b@ is 'Compilable' to 'Rules' if @a@ is 'Compilable' and

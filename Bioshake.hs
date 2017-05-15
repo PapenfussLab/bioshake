@@ -127,7 +127,7 @@ $(allTransTags ''All)
 -- threads to use.
 bioshake :: Int -- ^ Number of threads
          -> ShakeOptions -- ^ Options to pass to 'shakeArgs'.
-         -> (Implicit_ Resource => Rules ()) -> IO ()
+         -> (Implicit Resource => Rules ()) -> IO ()
 bioshake n opts cont = shakeArgs opts{shakeThreads = n} $ do
   res <- newResource "cpus" n
   cont $~ res
