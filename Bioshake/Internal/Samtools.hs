@@ -19,13 +19,6 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           GHC.TypeLits
 
--- | Provides shake rules to build indices for bam files. This is needed for some stages that deal with bam files and require an index.
-indexRules =
-  "//*.bam.bai" %> \out -> do
-    let input = dropExtension out
-    need [input]
-    cmd "samtools index" [input] [out]
-
 data SortBam c = SortBam c deriving Show
 data DeDup c = DeDup c deriving Show
 data MappedOnly c = MappedOnly c deriving Show

@@ -15,11 +15,12 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
+indexRules :: Implicit Config => Rules ()
 indexRules =
   "//*.bam.bai" %> \out -> do
     let input = dropExtension out
     need [input]
-    cmd "samtools index" [input] [out]
+    withSubmit (run "samtools index" [input] [out]) [Left param]
 
 $(makeSingleCluster ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeCluster ''SortBam [''IsBam] 'buildSortBam)

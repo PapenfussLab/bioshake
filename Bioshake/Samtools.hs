@@ -15,6 +15,13 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
+-- | Provides shake rules to build indices for bam files. This is needed for some stages that deal with bam files and require an index.
+indexRules =
+  "//*.bam.bai" %> \out -> do
+    let input = dropExtension out
+    lift $ need [input]
+    run "samtools index" [input] [out]
+
 $(makeSingleThread ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeThreaded ''SortBam [''IsBam] 'buildSortBam)
 $(makeThreaded ''MappedOnly [''IsSam] 'buildMappedOnly)
