@@ -4,7 +4,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | This module introduces a set of common tags that are frequently used when
--- defining phases.
+-- defining stages.
 module Bioshake.Tags where
 
 import           Bioshake.Types

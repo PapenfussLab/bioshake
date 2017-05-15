@@ -63,8 +63,8 @@ automatically named and managed by bioshake, removing the burden of naming the
   \begin{haskell*}
     align &↦& sort &↦& dedup &↦& call &↦& out [''output.vcf''] 
   \end{haskell*}
-  From this example it is clear what the \textit{phases} are, and the names of
-  the files flowing between phases is implicit and managed by bioshake. The
+  From this example it is clear what the \textit{stages} are, and the names of
+  the files flowing between stages is implicit and managed by bioshake. The
   exception is the explicitly named output, which is the output of the whole
   pipeline.
 \end{example}
@@ -76,7 +76,7 @@ Bioshake is build around the following datatype:
   \hskwd{data} a ↦ b \hswhere{(↦) :: a → b → a ↦ b}\\
   \hskwd{infixl} 1 ↦ 
 \end{haskell*}
-This datatype represents the conjunction of two phases $a$ and $b$.
+This datatype represents the conjunction of two stages $a$ and $b$.
 As we are compiling to shake rules, the $Buildable$ class represents a way to
 build thing of type $a$ by producing shake actions:
 \begin{haskell*}
@@ -88,25 +88,25 @@ represent types that can be mapped to filenames:
   \hskwd{class} Pathable a \hswhere{paths :: a → [FilePath]}
 \end{haskell*}
 
-\section{Defining phases}
+\section{Defining stages}
 
-A phase -- for example $align$ing and $sort$ing -- is a type in this
+A stage -- for example $align$ing and $sort$ing -- is a type in this
 representation. Such a type is an instance of $Pathable$ as outputs from the
-phase are files, and also $Buildable$ as the phase is associated with some shake
+stage are files, and also $Buildable$ as the stage is associated with some shake
 actions required to build the outputs. We give a simple example of declaring a
-phase that sorts bam files.
+stage that sorts bam files.
 
 \begin{example}
   \label{ex:sort}
-  Consider the phase of sorting a bed file using samtools. We first define a
-  datatype to represent the sorting phase and to carry all configuration options
+  Consider the stage of sorting a bed file using samtools. We first define a
+  datatype to represent the sorting stage and to carry all configuration options
   needed to perform the sort:
   \begin{haskell*}
     data Sort = Sort
   \end{haskell*}
   
   This datatype must be an instance of $Pathable$ to define the filenames output
-  from the phase. Naming can take place according to a number of schemes, but
+  from the stage. Naming can take place according to a number of schemes, but
   here we will opt to use hashes to name output files. This ensure the filename
   is unique and relatively short.
   \begin{haskell*}
@@ -126,7 +126,7 @@ phase that sorts bam files.
       }
     } 
   \end{haskell*}
-  Note here that $IsBam$ is a precondition for the instance: the sort phase is
+  Note here that $IsBam$ is a precondition for the instance: the sort stage is
   only applicable to BAM files. Likewise, the output of the sort is also a BAM
   file, so we must declare that too:
   \begin{haskell*}
@@ -146,7 +146,7 @@ with some additional state:
 \begin{haskell*}
   \hskwd{type} Compiler &=& StateT (S.Set [FilePath]) Rules\\
 \end{haskell*}
-The state here captures rules we have already compiled. As the same phases may
+The state here captures rules we have already compiled. As the same stages may
 be applied in several concurrent pipelines (i.e., the same preprocessing may be
 applied but different subsequent variant callers) the set of rules already
 compiled must be maintained. When compiling a rule, the state is checked to
@@ -162,7 +162,7 @@ A compilable typeclass abstracts over types that can be compiled:
   \hskwd{class} Compilable a \hswhere{compile :: a → Compiler ()}
 \end{haskell*}
 Finally, \<a ↦ b\> is $Compilable$ if the input and output paths are defined,
-the subsequent phase \<a\> is $Compilable$, and \<a ↦ b\> is $Buildable$.
+the subsequent stage \<a\> is $Compilable$, and \<a ↦ b\> is $Buildable$.
 Compilation in this case defines a rule to build the output paths with
 established dependencies on the input paths using the $build$ function. These
 rules are only compiled if they do not already exist: 
@@ -182,7 +182,7 @@ instance (Pathable a, Pathable (a ↦ b), Compilable a, Buildable (a ↦ b)) ⇒
 \section{Tags}
 \label{sec:tags}
 
-Bioshake uses a number of tags to ensure type errors will be raised if phases
+Bioshake uses a number of tags to ensure type errors will be raised if stages
 are not connectable. There are numerous tags that are useful for capturing
 metadata that are not otherwise easily captured. We have already seen in
 \cref{ex:sort} the use of \textit{IsBam} to ensure the input file format of
@@ -195,7 +195,7 @@ prefixed by \textit{Is} as tags for filetype, e.g.,: \textit{IsBam},
 Other types of metadata such as if a file is sorted (\textit{Sorted}) or if
 duplicate reads have been removed (\textit{DeDuped}) are used. These tags allow
 input requirements of sorting or deduplication to be captured when defining
-phases. These properties can also automatically propagate down the pipeline; for
+stages. These properties can also automatically propagate down the pipeline; for
 example, once a file is \textit{DeDuped} all subsequent outputs carry the
 \textit{DeDuped} tag:
 \begin{haskell*}
@@ -212,7 +212,7 @@ tag is defined as
   }\\\\
   \hskwd{instance} Referenced a ⇒ Referenced (a ↦ b)
 \end{haskell*}
-This tag allows phases to extract the path to the reference genome and
+This tag allows stages to extract the path to the reference genome and
 automatically propagates down the pipeline.
 
 \section{Abstracting execution platform}
@@ -226,16 +226,16 @@ flexibility by using free monad transformers to provide a function $run$ -- the
 equivalent of $cmd$ -- but where the actual execution may take place via
 submitting a script to a cluster queue, for example.
 
-In order to achieve this, the datatype for phases in bioshake are augmented by a
+In order to achieve this, the datatype for stages in bioshake are augmented by a
 free parameter to carry implementation specific default configuration -- e.g., cluster
 job submission resources. In the running example of sorting a bed file, the new
 datatype is \< \hskwd{data} Sort c = Sort c\>.
 
 \section{Reducing boilerplate}
 
-Much of the code necessary for defining a new phase can be automatically written
+Much of the code necessary for defining a new stage can be automatically written
 through the use of template Haskell. This allows very succinct definitions of
-phases increasing clarity of code and reducing boilerplate. Bioshake has
+stages increasing clarity of code and reducing boilerplate. Bioshake has
 template Haskell functions for generating instances of \textit{Pathable} and
 \textit{Buildable}, and for managing the tags.
 
@@ -255,7 +255,7 @@ template Haskell functions for generating instances of \textit{Pathable} and
   \textit{Sorted}. The first tag in the list of output tags is used to determine
   the file extension. The second empty list allows the definition of
   \textit{transient} tags; that is the tags that if present on the input paths will
-  hold for the output files after the phase.
+  hold for the output files after the stage.
   Finally, given a generic definition of the build
   \begin{haskell*}
     buildSort t \_ (paths → [input]) [out] = \hsbody{run "samtools sort" [input] ["-@", show t] ["-o", out]}

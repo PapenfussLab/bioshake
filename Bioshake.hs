@@ -11,7 +11,7 @@
 {-# LANGUAGE ViewPatterns               #-}
 
 -- | Bioshake is a small framework for specifying bioinformatics pipelines. The
--- goal is to specify phases in a forward chaining manner (as is natural for the
+-- goal is to specify stages in a forward chaining manner (as is natural for the
 -- domain) while guaranteeing as much robustness as possible to errors such as
 -- mismatched file types or other attributes. Almost everything is handled in
 -- the type system, and pipelines are compiled down to "Development.Shake"
@@ -59,7 +59,7 @@ class Referenced a where
   dbnsfp :: a -> FilePath
   dbnsfp _ = error "dbNSFP not available"
 
--- | References flows down the pipeline regardless of the phase
+-- | References flows down the pipeline regardless of the stage
 instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
   name (a :-> _) = name a
@@ -94,7 +94,7 @@ data All a where
   All :: (Functor f, Foldable f) => f a -> All a
 
 -- |Fan-in style combinator. Takes a collection of combines their output paths
--- as input paths for the subsequent phase.
+-- as input paths for the subsequent stage.
 withAll :: (Functor f, Foldable f) => f a -> All a
 withAll = All
 

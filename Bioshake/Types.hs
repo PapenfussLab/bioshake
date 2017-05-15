@@ -15,7 +15,7 @@ import qualified Data.Set                         as S
 import           Data.String
 import           Development.Shake
 
--- | Pipes output of phase a into phase b, i.e., forms a pipeline.
+-- | Pipes output of stage a into stage b, i.e., forms a pipeline.
 data a :-> b where (:->) :: a -> b -> a :-> b
 infixl 1 :->
 
@@ -54,7 +54,7 @@ instance (Pathable a, Pathable (a :-> b), Compilable a, Buildable (a :-> b)) => 
     compile a
 
 -- | Things are pathable if they can be mapped to a list of file paths. This is
--- used to make the files for a phase concrete in the build system.
+-- used to make the files for a stage concrete in the build system.
 class Pathable a where
   paths :: a -> [FilePath]
 
