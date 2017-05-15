@@ -59,9 +59,7 @@ class Referenced a where
   dbnsfp :: a -> FilePath
   dbnsfp _ = error "dbNSFP not available"
 
--- | References flows down the pipeline regardless of the phase: this allows
--- reference mismatch errors to be detected in the case of merges such as
--- "withAll".
+-- | References flows down the pipeline regardless of the phase
 instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
   name (a :-> _) = name a
@@ -90,16 +88,17 @@ instance Pathable a => Buildable (a :-> Out) where
 
 $(allTransTagsPipe ''Out)
 
--- Fan-in
+-- |Datatype to represent fan-in combinations.
+
 data All a where
   All :: (Functor f, Foldable f) => f a -> All a
 
--- | Fan-in style combinator. Takes a collection of combines their output paths
+-- |Fan-in style combinator. Takes a collection of combines their output paths
 -- as input paths for the subsequent phase.
 withAll :: (Functor f, Foldable f) => f a -> All a
 withAll = All
 
--- | Convenience function for pairs
+-- | Explicitly construct a fan-in of exactly two items
 withPair :: a -> a -> All a
 withPair a b = All [a, b]
 
@@ -109,11 +108,13 @@ instance Compilable a => Compilable (All a) where
 instance Pathable a => Pathable (All a) where
   paths (All ps) = nub $ concatMap paths ps
 
+-- |Fan-ins are 'Referenced' iff all items are consistently 'Referenced'. Problems are caught at runtime unfortunately.
 instance Referenced a => Referenced (All a) where
   getRef (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap getRef as
   name (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap name as
   dbnsfp (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap dbnsfp as
 
+-- |Fan-ins are a 'Capture' iff all items are consistent.
 instance Capture a => Capture (All a) where
   getBED (All as) = foldl1 (\l r -> if l == r then l else error "cannot combine mixed captures") $ fmap getBED as
 

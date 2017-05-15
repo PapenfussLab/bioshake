@@ -15,6 +15,7 @@ import           Development.Shake.FilePath
 
 data Pileup2Seqz c = Pileup2Seqz c deriving Show
 
+-- | Tags a type with GC content; this is not part of 'Bioshake.Referenced' as it is a sequenza specific format.
 class GC a where
   getGC :: a -> FilePath
 

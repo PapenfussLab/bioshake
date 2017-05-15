@@ -12,3 +12,4 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeThreaded ''CNVExome [''Referenced, ''Capture, ''IsMPileup] 'buildFREECExome)
+{- $CNVExome CNV calling on exomes using FREEC -}

@@ -10,3 +10,4 @@ import           Bioshake.TH
 import           Development.Shake
 
 $(makeSingleThread ''Trim [''IsFastQ] 'buildTrim)
+{- $trim Removes the given adaptor 'Seq' from fastq files using cutadapt. -}

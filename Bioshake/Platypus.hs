@@ -12,3 +12,4 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeThreaded ''Call [''Referenced, ''IsBam] 'buildPlatypus)
+{- $call Call variants using Platypus. Can call multiple samples. -}

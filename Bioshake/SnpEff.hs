@@ -12,4 +12,6 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeSingleThread ''Annotate [''Referenced, ''IsVCF] 'buildAnnot)
+{- $Annotate Annotate using snpEFF -}
 $(makeSingleThread ''DBNSFP [''Referenced, ''IsVCF, ''SnpEffAnnotated] 'buildDBNSFP)
+{- $Annotate Annotate with DBNSFP using snpEFF. -}

@@ -15,15 +15,10 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
-indexRules =
-  "//*.bam.bai" %> \out -> do
-    let input = dropExtension out
-    need [input]
-    cmd "samtools index" [input] [out]
-
 $(makeSingleThread ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeThreaded ''SortBam [''IsBam] 'buildSortBam)
 $(makeThreaded ''MappedOnly [''IsSam] 'buildMappedOnly)
 $(makeSingleThread ''Pileup [''IsBam, ''Referenced] 'buildPileup)
 $(makeSingleThread ''DeDup [''IsBam] 'buildDedup)
 $(makeSingleThread ''BedCov [''IsBam, ''Capture] 'buildBedCov)
+{- $bedCov Computes coverage for each capture region -}

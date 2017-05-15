@@ -12,3 +12,4 @@ import           Bioshake.TH
 import           Development.Shake
 
 $(makeThreaded ''Align [''Referenced, ''IsFastQ] 'buildBWA)
+{- $align Aligns fastq files against the reference using BWA-mem. -}

@@ -11,3 +11,4 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeSingleThread ''Call [''Capture, ''IsBam, ''DeDuped] 'buildADTEx)
+{- $call Call CNVs for whole exomes using ADTEx. Expects deduplicated BAM files as input, and a capture region. -}

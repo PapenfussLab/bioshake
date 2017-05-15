@@ -11,3 +11,4 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeSingleThread ''CaptureOnly [''Capture, ''IsVCF] 'buildBedtoolsCaptureOnly)
+{- $captureOnly Reduces VCF files to the capture region only using bedtools. -}
