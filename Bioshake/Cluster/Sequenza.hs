@@ -13,4 +13,3 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeSingleCluster ''Pileup2Seqz [''IsMPileup, ''GC] 'buildPileup2Seqz)
-$(makeSingleCluster ''Bin [''IsSeqzGZ] 'buildBin)

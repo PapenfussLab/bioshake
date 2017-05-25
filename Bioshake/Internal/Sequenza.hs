@@ -28,23 +28,11 @@ instance GC a => GC (All a) where
 buildPileup2Seqz _ a@(paths -> [normal, tumour]) [out] = do
   let gc = getGC a
   lift $ need [gc]
-  run "sequenza-utils bam2seqz -p"
-    ["-n", normal]
-    ["-t", tumour]
+  run "sequenza-utils pileup2abfreq"
+    ["-r", normal]
+    ["-s", tumour]
     ["-gc", gc]
-    ["-o", out]
-
-instance Pathable a => Pathable (a :-> Pileup2Seqz c) where
-  paths (a :-> _) = [hashPath (paths a) <.> "Sequenza" <.> "Pileup2Seqz" <.> "seqz" <.> "gz"]
-instance IsSeqzGZ (a :-> Pileup2Seqz c)
-
-data Bin c = Bin c Int
-
-buildBin (Bin _ bs) (paths -> [input]) [out] =
-  run "sequenza-utils seqz_binning"
-    ["-w", show bs]
-    ["-s", input]
-    "|gzip > "
+    "| gzip >"
     [out]
 
-$(makeSingleTypes ''Bin [''IsSeqzGZ] [])
+$(makeSingleTypes ''Pileup2Seqz [''IsSeqzGZ] [])

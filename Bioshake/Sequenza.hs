@@ -11,4 +11,3 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 $(makeSingleThread ''Pileup2Seqz [''IsMPileup, ''GC] 'buildPileup2Seqz)
-$(makeSingleThread ''Bin [''IsSeqzGZ] 'buildBin)
