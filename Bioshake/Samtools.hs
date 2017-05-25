@@ -19,8 +19,8 @@ import           Development.Shake.FilePath
 indexRules =
   "//*.bam.bai" %> \out -> do
     let input = dropExtension out
-    lift $ need [input]
-    run "samtools index" [input] [out]
+    need [input]
+    cmd "samtools index" [input] [out]
 
 $(makeSingleThread ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeThreaded ''SortBam [''IsBam] 'buildSortBam)
