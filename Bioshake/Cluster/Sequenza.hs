@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
-module Bioshake.Cluster.Sequenza (pileup2Seqz, bin, GC(..)) where
+module Bioshake.Cluster.Sequenza (pileup2Seqz, GC(..)) where
 
 import           Bioshake
 import           Bioshake.Cluster.Torque
