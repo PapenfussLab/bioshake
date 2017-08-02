@@ -14,15 +14,15 @@ import           Language.Haskell.TH
 
 -- | Duplicated reads have been removed
 class DeDuped a
-instance {-# OVERLAPPABLE #-} DeDuped a => DeDuped (a :-> b)
+instance DeDuped a => DeDuped (a :-> b)
 
 -- | Contains an RG line
 class HasRG a
-instance {-# OVERLAPPABLE #-} (HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
+instance (HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
 
 -- | Results from a paired end sequencing processed
 class PairedEnd a
-instance {-# OVERLAPPABLE #-} PairedEnd a => PairedEnd (a :-> b)
+instance PairedEnd a => PairedEnd (a :-> b)
 
 -- | Sorted (e.g., sorted sam/bam, or bed)
 class Sorted a

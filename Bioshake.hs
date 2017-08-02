@@ -56,7 +56,7 @@ class Referenced a where
   dbnsfp _ = error "dbNSFP not available"
 
 -- | References flows down the pipeline regardless of the stage
-instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
+instance Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
   name (a :-> _) = name a
   dbnsfp (a :-> _) = dbnsfp a
@@ -65,7 +65,7 @@ instance {-# OVERLAPPABLE #-} Referenced a => Referenced (a :-> b) where
 class Capture a where
   getBED :: a -> FilePath
 
-instance {-# OVERLAPPABLE #-} Capture a => Capture (a :-> b) where
+instance Capture a => Capture (a :-> b) where
   getBED (a :-> _) = getBED a
 
 -- Hard naming outputs
