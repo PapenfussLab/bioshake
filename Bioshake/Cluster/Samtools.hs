@@ -25,6 +25,6 @@ indexRules =
 $(makeSingleCluster ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeCluster ''SortBam [''IsBam] 'buildSortBam)
 $(makeCluster ''MappedOnly [''IsSam] 'buildMappedOnly)
-$(makeSingleCluster ''Pileup [''IsBam, ''Referenced] 'buildPileup)
+$(makeSingleCluster ''Pileup [''IsBam, ''Referenced, ''Sorted] 'buildPileup)
 $(makeSingleCluster ''DeDup [''IsBam] 'buildDedup)
 $(makeSingleCluster ''BedCov [''IsBam, ''Capture] 'buildBedCov)

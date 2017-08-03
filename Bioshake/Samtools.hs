@@ -25,7 +25,7 @@ indexRules =
 $(makeSingleThread ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeThreaded ''SortBam [''IsBam] 'buildSortBam)
 $(makeThreaded ''MappedOnly [''IsSam] 'buildMappedOnly)
-$(makeSingleThread ''Pileup [''IsBam, ''Referenced] 'buildPileup)
+$(makeSingleThread ''Pileup [''IsBam, ''Referenced, ''Sorted] 'buildPileup)
 $(makeSingleThread ''DeDup [''IsBam] 'buildDedup)
 $(makeSingleThread ''BedCov [''IsBam, ''Capture] 'buildBedCov)
 {- $bedCov Computes coverage for each capture region -}
