@@ -11,4 +11,4 @@ import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeCluster ''Call [''Referenced, ''IsBam] 'buildPlatypus)
+$(makeCluster ''Call [''Referenced, ''IsBam, ''Sorted] 'buildPlatypus)

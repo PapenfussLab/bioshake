@@ -11,5 +11,5 @@ import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeThreaded ''Call [''Referenced, ''IsBam] 'buildPlatypus)
+$(makeThreaded ''Call [''Referenced, ''IsBam, ''Sorted] 'buildPlatypus)
 {- $call Call variants using Platypus. Can call multiple samples. -}

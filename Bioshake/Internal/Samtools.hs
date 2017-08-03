@@ -43,7 +43,7 @@ $(makeSingleTypes ''SortBam [''IsBam, ''Sorted] [])
 buildMappedOnly t _ (paths -> [input]) [out] =
   run "samtools view -F 4 -b" [input] ["-@", show t] ["-o", out]
 
-$(makeSingleTypes ''MappedOnly [''IsBam] [])
+$(makeSingleTypes ''MappedOnly [''IsBam] [''Sorted])
 
 buildPileup _ a@(paths -> inputs) [out] =
   run "samtools mpileup -q1 -B" ["-f", getRef a] inputs ["-o", out]
@@ -53,7 +53,7 @@ $(makeSingleTypes ''Pileup [''IsMPileup] [])
 buildDedup _ (paths -> [input]) [out] =
   run "samtools rmdup" [input] [out]
 
-$(makeSingleTypes ''DeDup [''IsBam] [])
+$(makeSingleTypes ''DeDup [''IsBam] [''Sorted])
 
 buildBedCov _ a@(paths -> inputs) [out] = do
   let bed = getBED a
