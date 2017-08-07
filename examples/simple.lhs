@@ -6,8 +6,6 @@ asamples using the platypus variant caller.
 First, import some stuff...
 
 > import Bioshake
-> import Bioshake.BWA
-> import Bioshake.Platypus
 > import Control.Monad
 > import Data.List.Split
 > import Development.Shake
