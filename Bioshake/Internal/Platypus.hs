@@ -16,7 +16,8 @@ data Call c = Call c deriving Show
 
 buildPlatypus t _ a@(paths -> inputs) [out] = do
   let bais = map ( <.> "bai" ) inputs
-  lift $ need bais
+      fai = getRef a <.> "fai"
+  lift . need $ fai:bais
   run "platypus callVariants"
     ["--bamFiles=" ++ intercalate "," inputs]
     ["--refFile=" ++ getRef a]

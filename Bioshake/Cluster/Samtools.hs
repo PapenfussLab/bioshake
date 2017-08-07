@@ -16,11 +16,16 @@ import           Development.Shake
 import           Development.Shake.FilePath
 
 indexRules :: Implicit Config => Rules ()
-indexRules =
-  "//*.bam.bai" %> \out -> do
+indexRules = do
+  "//*.bai" %> \out -> do
     let input = dropExtension out
     need [input]
     withSubmit (run "samtools index" [input] [out]) [Left param]
+  "//*.fai" %> \out -> do
+    let input = dropExtension out
+    need [input]
+    withSubmit (run "samtools faidx" [input]) [Left param]
+
 
 $(makeSingleCluster ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeCluster ''SortBam [''IsBam] 'buildSortBam)

@@ -15,9 +15,9 @@ First, import some stuff...
 We will align reads using BWA, sort and filter with samtools, and finally call
 with Platypus
 
-> import Bioshake.BWA
+> import Bioshake.BWA as B
 > import Bioshake.Platypus
-> import Bioshake.Samtools
+> import Bioshake.Samtools as S
 
 First, define a datatype to represent our paired-end samples.
 
@@ -77,9 +77,10 @@ which we'll call "calls.vcf".
 >     want ["calls.vcf"]
 
 In addition to that, we will bring into scope the rules for indexing bamfiles
-(building .bam.bai from .bam) using samtools.
+(building .bam.bai from .bam) using samtools and building BWA indices.
 
->     indexRules
+>     B.indexRules
+>     S.indexRules
 
 Finally, we compile our pipeline down to Shake Rules.
 
