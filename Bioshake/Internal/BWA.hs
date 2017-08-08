@@ -1,27 +1,66 @@
+{-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE ViewPatterns          #-}
 module Bioshake.Internal.BWA where
 
-import           Bioshake
+import           Bioshake                   hiding (C)
 import           Bioshake.Implicit
 import           Bioshake.TH
 import           Control.Monad.Trans        (lift)
 import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
+import           GHC.TypeLits
 
-data Align c = Align c deriving Show
+data BWAOpts where
+  K  :: Int    -> BWAOpts
+  BW :: Int    -> BWAOpts
+  D  :: Int    -> BWAOpts
+  R  :: Double -> BWAOpts
+  Y  :: Int    -> BWAOpts
+  C  :: Int    -> BWAOpts
+  DC :: Double -> BWAOpts
+  W  :: Int    -> BWAOpts
+  M  :: Int    -> BWAOpts
 
-buildBWA t _ a@(paths -> inputs) [out] = do
+instance Show BWAOpts where
+  show (K p)  = "-k" ++ show p
+  show (BW p) = "-w" ++ show p
+  show (D p)  = "-d" ++ show p
+  show (R p)  = "-r" ++ show p
+  show (Y p)  = "-y" ++ show p
+  show (C p)  = "-c" ++ show p
+  show (DC p) = "-D" ++ show p
+  show (W p)  = "-W" ++ show p
+  show (M p)  = "-m" ++ show p
+
+k x  = if x > 0 then K x else error "BWA: failed k > 0"
+bw x = if x > 0 then BW x else error "BWA: failed bw > 0"
+d x  = if x > 0 then D x else error "BWA: failed d > 0"
+r x  = if x > 0 then R x else error "BWA: failed r > 0"
+y x  = if x > 0 then Y x else error "BWA: failed y > 0"
+c x  = if x > 0 then C x else error "BWA: failed c > 0"
+dc x = if x > 0 then DC x else error "BWA: failed dc > 0"
+w x  = if x > 0 then W x else error "BWA: failed w > 0"
+m x  = if x > 0 then M x else error "BWA: failed m > 0"
+
+instance Default [BWAOpts] where def = []
+
+data Align c = Align c [BWAOpts] deriving Show
+
+buildBWA t (Align _ opts) a@(paths -> inputs) [out] = do
     lift $ need [getRef a <.> ext | ext <- ["amb", "ann", "bwt", "pac", "sa"]]
     run "bwa mem"
       ["-t", show t]
       [getRef a]
       inputs
+      (map show opts)
       ">" out
 
 $(makeSingleTypes ''Align [''IsSam] [])

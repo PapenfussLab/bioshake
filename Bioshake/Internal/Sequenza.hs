@@ -39,6 +39,7 @@ instance Pathable a => Pathable (a :-> Pileup2Seqz c) where
 instance IsSeqzGZ (a :-> Pileup2Seqz c)
 
 data Bin c = Bin c Int
+  deriving Show
 
 buildBin (Bin _ bs) (paths -> [input]) [out] =
   run "sequenza-utils seqz_binning"

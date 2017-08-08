@@ -3,7 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
-module Bioshake.Cluster.BWA where
+module Bioshake.Cluster.BWA(indexRules, align, k, bw, d, r, y, c, dc, w, m) where
 
 import           Bioshake
 import           Bioshake.Cluster.Torque
@@ -20,4 +20,7 @@ indexRules =
     need [i]
     withSubmit (run "bwa index" [i]) [Left param]
 
-$(makeCluster ''Align [''Referenced, ''IsFastQ] 'buildBWA)
+align :: (Implicit Config, Implicit [BWAOpts]) => Align Config
+align = Align param param
+
+$(makeCluster' ''Align [''Referenced, ''IsFastQ] 'buildBWA)

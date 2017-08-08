@@ -1,8 +1,9 @@
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE GADTs                #-}
-{-# LANGUAGE TypeOperators        #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeOperators              #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
 module Bioshake.Cluster.Torque where
 
 import           Bioshake.Implicit
@@ -30,6 +31,7 @@ data TOption = Mem Int
              deriving (Eq, Show)
 
 newtype Config = Config [TOption]
+  deriving Show
 --instance Default Config where def = Config [Queue "large", Mem (gb 10), CPUs 1]
 
 getCPUs :: Config -> Int

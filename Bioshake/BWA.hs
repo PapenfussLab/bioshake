@@ -3,7 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
-module Bioshake.BWA where
+module Bioshake.BWA(indexRules, align, k, bw, d, r, y, c, dc, w, m) where
 
 import           Bioshake
 import           Bioshake.Implicit
@@ -18,5 +18,8 @@ indexRules =
     need [i]
     cmd "bwa index" [i]
 
-$(makeThreaded ''Align [''Referenced, ''IsFastQ] 'buildBWA)
+align :: (Implicit Threads, Implicit [BWAOpts]) => Align Threads
+align = Align param param
+
+$(makeThreaded' ''Align [''Referenced, ''IsFastQ] 'buildBWA)
 {- $align Aligns fastq files against the reference using BWA-mem. -}

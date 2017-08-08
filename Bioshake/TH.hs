@@ -73,7 +73,7 @@ makeSingleTypes ty outtags transtags = do
       ext = map toLower ext'
 
 
-  path <- [d| instance (Show a, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = [hashPath (paths a, show a) <.> lastMod <.> name <.> ext] |]
+  path <- [d| instance (Show c, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> b) = [hashPath (paths a, show b) <.> lastMod <.> name <.> ext] |]
 
   tags <- forM outtags $ \t -> do
     a <- newName "a"
@@ -110,7 +110,7 @@ makeMultiTypes ty outtags transtags = do
       ext = map toLower ext'
 
 
-  path <- [d| instance (Show a, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> _) = map (\x -> hashPath (x, show a) <.> lastMod <.> name <.> ext) (paths a) |]
+  path <- [d| instance (Show c, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> b) = map (\x -> hashPath (x, show b) <.> lastMod <.> name <.> ext) (paths a) |]
 
   tags <- forM outtags $ \t -> do
     a <- newName "a"
@@ -131,10 +131,12 @@ makeSingleThread ty tags fun = do
 
   TyConI (DataD _ _ _ _ [NormalC con _] _) <- reify ty
 
-
   consName <- newName name'
   constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (ConE '()))) []
+  build <- makeSingleThread' ty tags fun
+  return (constructor:build)
 
+makeSingleThread' ty tags fun = do
   a <- newName "a"
   a2 <- newName "a2"
   b <- newName "b"
@@ -143,7 +145,7 @@ makeSingleThread ty tags fun = do
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : ''Show : tags
   build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (TupleT 0)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (VarP b))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withCmd) (LitE (IntegerL 1))) (AppE (AppE (AppE (VarE fun) (VarE b)) (VarE a2)) (VarE outs))))) []]]
 
-  return [constructor, build]
+  return [build]
 
 makeSingleCluster ty tags fun = do
   let (c : name) = nameBase ty
@@ -184,6 +186,14 @@ makeThreaded ty tags fun = do
   consName <- newName name'
   constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit) (ConT ''Threads)] funType)
   constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param))) []
+  build <- makeThreaded' ty tags fun
+  return (constructorSig : constructor : build)
+
+makeThreaded' ty tags fun = do
+  TyConI (DataD _ _ _ _ [NormalC con conTypes] _) <- reify ty
+  let (_, _:conTypes') = unzip conTypes
+      conArrTypes = map (\t -> AppT ArrowT t) conTypes'
+      funType = foldr (\l r -> AppT l r) (AppT (ConT ty) (ConT ''Threads)) conArrTypes
 
   a <- newName "a"
   a2 <- newName "a2"
@@ -194,7 +204,7 @@ makeThreaded ty tags fun = do
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : ''Show : tags
   build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (ConT ''Threads)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (AsP b (ConP con (ConP 'Threads [VarP t] : replicate (length conArrTypes) WildP))))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withCmd) (VarE t)) (AppE (AppE (AppE (AppE (VarE fun) (VarE t)) (VarE b)) (VarE a2)) (VarE outs))))) []]]
 
-  return [constructorSig, constructor, build]
+  return [build]
 
 
 makeCluster ty tags fun = do
@@ -210,6 +220,15 @@ makeCluster ty tags fun = do
   consName <- newName name'
   constructorSig <- return $ SigD consName (ForallT [] [AppT (ConT ''Implicit) (ConT ''Config)] funType)
   constructor <- return $ ValD (VarP consName) (NormalB (AppE (ConE con) (VarE 'param))) []
+  build <- makeCluster' ty tags fun
+  return (constructorSig : constructor : build)
+
+makeCluster' ty tags fun = do
+  TyConI (DataD _ _ _ _ [NormalC con conTypes] _) <- reify ty
+
+  let (_, _:conTypes') = unzip conTypes
+      conArrTypes = map (\t -> AppT ArrowT t) conTypes'
+      funType = foldr (\l r -> AppT l r) (AppT (ConT ty) (ConT ''Config)) conArrTypes
 
   a <- newName "a"
   a2 <- newName "a2"
@@ -219,7 +238,7 @@ makeCluster ty tags fun = do
   let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : ''Show : tags
   build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (ConT ''Config)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP))))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (AppE (VarE fun) (AppE (VarE 'getCPUs) (VarE config))) (VarE a)) (VarE a2)) (VarE outs)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config)])))) []]]
 
-  return [constructorSig, constructor, build]
+  return [build]
 
 -- For writing commands succinctly
 class Args a where args :: a -> [String]
