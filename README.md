@@ -154,8 +154,8 @@ files on the disk:
 
     data Input = Input deriving Show
     
-First this is to declare the paths "output" from the stage. As the input stage,
-we just return a list of input files:
+First is to declare the paths "output" from the stage. As the input stage, we
+just return a list of input files:
 
     instance Pathable Input where
       paths _ = ["sample_R1.fastq.gz", "sample_R2.fastq.gz"]
@@ -172,3 +172,8 @@ referenced against some genome:
     instance Referenced In where
       getRef _ = "/path/to/hg38.fa"
       name _ = "hg38"
+
+## Further documentation
+
+There is an example pipeline in the repository and haddock documentation
+at <https://papenfusslab.github.io/bioshake/>.

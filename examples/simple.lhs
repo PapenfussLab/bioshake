@@ -38,8 +38,8 @@ with. This involves instantiating the Referenced class and declaring the path to
 wthe reference and the short name of the reference:
 
 > instance Referenced Sample where
->   getRef _ = "/data/hg38/hg38.fa"
->   name _ = "hg38"
+>   getRef _ = "ref.fa"
+>   name _ = "SL1344"
 
 Finally, we describe how to get the paths for a Sample:
 
@@ -77,7 +77,7 @@ which we'll call "calls.vcf".
 >     want ["calls.vcf"]
 
 In addition to that, we will bring into scope the rules for indexing bamfiles
-(building .bam.bai from .bam) using samtools and building BWA indices.
+(building .bam.bai from .bam) using samtools.
 
 >     B.indexRules
 >     S.indexRules
@@ -90,6 +90,10 @@ We have one simple pipelines in this case. Simple alignment and processing is
 first applied to each individual sample. The samples are then pooled and called
 as a group using platypus.
 
->       let aligned = map (\s -> s :-> align :-> mappedOnly :-> sortBam :-> deDup :-> addRGLine (show s)) samples in
+>       let aligned = map (\s -> s :-> align
+>                                  :-> mappedOnly
+>                                  :-> sortBam
+>                                  :-> deDup
+>                                  :-> addRGLine (show s)) samples in
 >       compile $ withAll aligned :-> call :-> out ["calls.vcf"]
 

@@ -1,0 +1,13 @@
+This is an example pipeline and data using bioshake to align and call variants.
+The fastq files are simulated from the reference and included in this directory.
+Note that the simulated reads don't contain any variants, so the resulting vcf
+file should be empty. You can run the sample pipeline by:
+
+  runhaskell simple.lhs *.fq
+
+or by compiling then executing the resulting binary on the fastq files. If you
+are using stack you can:
+
+  stack setup
+  stack build
+  stack runhaskell simple.lhs *.fq
