@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -27,6 +28,8 @@ instance PairedEnd a => PairedEnd (a :-> b)
 -- | Sorted (e.g., sorted sam/bam, or bed)
 class Sorted a
 
+-- | Filted to a capture region
+class CaptureOnly a
 
 class IsBam a
 class IsBcf a

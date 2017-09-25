@@ -10,5 +10,5 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeSingleThread ''CaptureOnly [''Capture, ''IsVCF] 'buildBedtoolsCaptureOnly)
+$(makeSingleThread ''FilterCapture [''Capture, ''IsVCF] 'buildBedtoolsCapture)
 {- $captureOnly Reduces VCF files to the capture region only using bedtools. -}

@@ -17,6 +17,7 @@ library
                      , Bioshake.Bedtools
                      , Bioshake.BWA
                      , Bioshake.Cutadapt
+                     , Bioshake.Facets
                      , Bioshake.FREEC
                      , Bioshake.Picard
                      , Bioshake.Platypus
@@ -44,6 +45,7 @@ library
                      , Bioshake.Internal.Bedtools
                      , Bioshake.Internal.BWA
                      , Bioshake.Internal.Cutadapt
+                     , Bioshake.Internal.Facets
                      , Bioshake.Internal.FREEC
                      , Bioshake.Internal.Picard
                      , Bioshake.Internal.Platypus

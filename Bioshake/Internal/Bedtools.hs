@@ -12,9 +12,9 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           System.Posix.Files         (createLink, rename)
 
-data CaptureOnly c = CaptureOnly c deriving Show
+data FilterCapture c = FilterCapture c deriving Show
 
-buildBedtoolsCaptureOnly _ a@(paths -> [input]) [out] = do
+buildBedtoolsCapture _ a@(paths -> [input]) [out] = do
   let bed = getBED a
   lift $ need [bed]
   withTempDirectory' "tmp" "bedtools" $ \tmpDir -> do
@@ -27,4 +27,4 @@ buildBedtoolsCaptureOnly _ a@(paths -> [input]) [out] = do
     intcnt <- liftIO $ readFile intersection
     liftIO $ writeFile out (inhdr ++ intcnt)
 
-$(makeSingleTypes ''CaptureOnly [''IsVCF] [])
+$(makeSingleTypes ''FilterCapture [''IsVCF, ''CaptureOnly] [])

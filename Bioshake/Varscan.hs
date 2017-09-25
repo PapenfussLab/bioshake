@@ -1,7 +1,7 @@
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeOperators         #-}
 module Bioshake.Varscan where
 
 import           Bioshake

@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE ViewPatterns      #-}
@@ -11,7 +11,7 @@ import           Control.Monad.Trans        (lift)
 import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
-import           System.Posix.Files           (createLink, rename)
+import           System.Posix.Files         (createLink, rename)
 
 data CNVExome c = CNVExome c deriving Show
 

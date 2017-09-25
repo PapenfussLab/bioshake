@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE Rank2Types            #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE Rank2Types           #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE UndecidableInstances #-}
 -- | This modules provides implicit parameters, intended for passing default and overrideable configuration options. It is based on implicit-params in hackage.
 module Bioshake.Implicit where
 

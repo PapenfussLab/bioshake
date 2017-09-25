@@ -9,9 +9,9 @@ module Bioshake.Internal.ContextMap where
 import           Bioshake
 import           Bioshake.Implicit
 import           Bioshake.TH
-import           Control.Monad.Trans (lift)
-import           Data.Maybe
+import           Control.Monad.Trans        (lift)
 import           Data.List
+import           Data.Maybe
 import           Development.Shake
 import           Development.Shake.FilePath
 import           System.Directory
@@ -19,7 +19,7 @@ import           System.Directory
 data Align c = Align c deriving Show
 
 buildContextMap t _ a@(paths -> inputs) [out] = do
-  path <- liftIO $ getSearchPath
+  path <- liftIO getSearchPath
   bwaBin <- liftIO $ fromMaybe (error "Cannot find BWA in path") <$> findFile path "bwa"
   withTempDirectory' "tmp" "contextmap" $ \tmpDir -> do
     () <- run "contextmap"

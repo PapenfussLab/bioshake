@@ -10,8 +10,8 @@ import           Control.Monad.Trans        (lift)
 import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
+import           System.Directory           (copyFile)
 import           System.Posix.Files         (createLink, rename)
-import System.Directory (copyFile)
 
 data CallSomatic c = CallSomatic c deriving Show
 data CopyNumber c = CopyNumber c deriving Show
@@ -25,7 +25,7 @@ buildVarscan _ a@(paths -> [input]) [out] = do
   indels <- fmap (unlines . filter (\(c:_) -> c /= '#') . lines) . liftIO $ readFile (out <.> "indel")
   liftIO $ appendFile out indels
 
-$(makeSingleTypes ''CallSomatic [''IsVCF] [])
+$(makeSingleTypes ''CallSomatic [''IsVCF] [''Sorted])
 
 buildCopyNumber _ a@(paths -> [input]) [out] = do
   () <- run "varscan copynumber"
@@ -38,4 +38,4 @@ buildCopyNumber _ a@(paths -> [input]) [out] = do
 
 class IsCNV a
 
-$(makeSingleTypes ''CopyNumber [''IsCNV] [])
+$(makeSingleTypes ''CopyNumber [''IsCNV] [''Sorted])

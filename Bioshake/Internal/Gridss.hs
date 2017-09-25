@@ -15,8 +15,8 @@ data Call c = Call c FilePath
 
 buildCall t (Call _ jar) a@(paths -> inputs) [out] =
   let mem = t * 2 + 8 in
-  withTempDirectory' "." "gridss" $ \tmpDir -> 
-    memLimit mem $ 
+  withTempDirectory' "." "gridss" $ \tmpDir ->
+    memLimit mem $
       run "java -ea" (concat ["-Xmx", show mem, "g"])
         ["-cp", jar, "au.edu.wehi.idsv.Idsv"]
         ["TMP_DIR=", tmpDir]
