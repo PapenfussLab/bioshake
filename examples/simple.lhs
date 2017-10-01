@@ -11,6 +11,7 @@ First, import some stuff...
 > import Development.Shake
 > import Development.Shake.FilePath
 > import System.Environment
+> import System.Exit
 
 We will align reads using BWA, sort and filter with samtools, and finally call
 with Platypus
@@ -19,16 +20,28 @@ with Platypus
 > import Bioshake.Platypus
 > import Bioshake.Samtools as S
 
+Note that if we wanted to submit our jobs to a cluster instead of executing
+directly, we would import the cluster versions of the modules, e.g.,:
+
+> --import Bioshake.Cluster.BWA as B
+> --import Bioshake.Cluster.Platypus
+> --import Bioshake.Cluster.Samtools as S
+
+
 First, define a datatype to represent our paired-end samples.
 
 > data Sample = Sample FilePath FilePath
 > instance Show Sample where
 >   show (Sample a b) = takeFileName (dropExtensions a) ++ "-" ++ takeFileName (dropExtensions b)
+
+The default instance of Compilabe suffices for files that already exist on disk
+and that do not require building
+
 > instance Compilable Sample
 
-Bioshake uses types to encode properties about stages in the pipeline. The first
-property we're going to declare is that these samples are paired end samples. We
-palso will declare that the input files are FastQ files.
+Bioshake uses type classes to encode properties about stages in the pipeline.
+The first property we're going to declare is that these samples are paired end
+samples. We also will declare that the input files are FastQ files.
 
 > instance PairedEnd Sample
 > instance IsFastQ Sample
@@ -47,7 +60,7 @@ Finally, we describe how to get the paths for a Sample:
 >   paths (Sample a b) = [a, b]
 
 Bioshake support multithreaded jobs, but for the purposes of this simple example
-we'll just run jobs in a single thread.
+we'll just run jobs in a single thread by default.
 
 > instance Default Threads where
 >   def = Threads 1
@@ -55,10 +68,14 @@ we'll just run jobs in a single thread.
 Command line arguments are naïvly parsed: we simply assume each pair of
 arguments are paths to the paired-end reads.
 
-> parseArgs = getArgs >>= return . map (\[a, b] -> Sample a b) . chunksOf 2
+> parseArgs = map (\[a, b] -> Sample a b) . chunksOf 2
 
 > main = do
->   samples <- parseArgs
+>   args <- getArgs
+>   when (null args || length args `mod` 2 /= 0) $ do
+>     putStrLn "error: expecting paired fastq files as input"
+>     exitFailure
+>   let samples = parseArgs args
 
 As we have parsed commandline arguments already, we clear them out before
 calling bioshake. Shake will parse the command line arguments and alter the
@@ -96,4 +113,3 @@ as a group using platypus.
 >                                  :-> deDup
 >                                  :-> addRGLine (show s)) samples in
 >       compile $ withAll aligned :-> call :-> out ["calls.vcf"]
-
