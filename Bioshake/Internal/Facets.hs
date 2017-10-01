@@ -1,10 +1,13 @@
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE GADTs                #-}
-{-# LANGUAGE StandaloneDeriving   #-}
-{-# LANGUAGE TemplateHaskell      #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE ViewPatterns         #-}
+{-# LANGUAGE FlexibleContexts       #-}
+{-# LANGUAGE FlexibleInstances      #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE GADTs                  #-}
+{-# LANGUAGE MultiParamTypeClasses  #-}
+{-# LANGUAGE StandaloneDeriving     #-}
+{-# LANGUAGE TemplateHaskell        #-}
+{-# LANGUAGE TypeOperators          #-}
+{-# LANGUAGE UndecidableInstances   #-}
+{-# LANGUAGE ViewPatterns           #-}
 module Bioshake.Internal.Facets where
 
 import           Bioshake
@@ -17,20 +20,25 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           System.Posix.Files         (createLink, rename)
 
+class HasBams a where
+  bams :: a -> [FilePath]
+
+instance {-# OVERLAPPABLE #-} (IsBam a, Pathable a) => HasBams a where
+  bams = paths
+
+instance {-# OVERLAPPING #-} HasBams a => HasBams (a :-> b) where
+  bams (a :-> _) = bams a
+
 class NoContigs a
 
-data Pileup c where
-  Pileup :: (Pathable v, Show v, IsVCF v, Sorted v, NoContigs v) => c -> v -> Pileup c
+data Pileup c = Pileup c deriving Show
 
-deriving instance Show c => Show (Pileup c)
-
-buildFacets (Pileup _ vcf) a@(paths -> inputs) [out] = do
-  let vcfp = paths vcf
-  when (length vcfp /= 1) $
-    error "facets requires exactly one vcf file"
-  lift $ need vcfp
+buildFacets :: (Pathable a, HasBams a) => Pileup c -> a -> [FilePath] -> Cmd ()
+buildFacets _ a@(paths -> [vcf]) [out] = do
+  let inputs = bams a
+  lift $ need inputs
   run "snp-pileup"
-    vcfp
+    vcf
     [out]
     inputs
 
