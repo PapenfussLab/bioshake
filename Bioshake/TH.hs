@@ -73,7 +73,7 @@ makeSingleTypes ty outtags transtags = do
       ext = map toLower ext'
 
 
-  path <- [d| instance (Show c, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> b) = [hashPath (paths a, show b) <.> lastMod <.> name <.> ext] |]
+  path <- [d| instance (Show a, Show c, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> b) = [hashPath (paths a, show a, show b) <.> lastMod <.> name <.> ext] |]
 
   tags <- forM outtags $ \t -> do
     a <- newName "a"
@@ -110,7 +110,7 @@ makeMultiTypes ty outtags transtags = do
       ext = map toLower ext'
 
 
-  path <- [d| instance (Show c, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> b) = map (\x -> hashPath (x, show b) <.> lastMod <.> name <.> ext) (paths a) |]
+  path <- [d| instance (Show a, Show c, Pathable a) => Pathable (a :-> $(conT ty) c) where paths (a :-> b) = map (\x -> hashPath (x, show a, show b) <.> lastMod <.> name <.> ext) (paths a) |]
 
   tags <- forM outtags $ \t -> do
     a <- newName "a"
@@ -142,7 +142,7 @@ makeSingleThread' ty tags fun = do
   b <- newName "b"
   pipe <- newName "pipe"
   outs <- newName "outs"
-  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
+  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : ''Show : tags
   build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (TupleT 0)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (VarP b))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withCmd) (LitE (IntegerL 1))) (AppE (AppE (AppE (VarE fun) (VarE b)) (VarE a2)) (VarE outs))))) []]]
 
   return [build]
@@ -166,7 +166,7 @@ makeSingleCluster ty tags fun = do
   outs <- newName "out"
   pipe <- newName "pipe"
   config <- newName "config"
-  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : tags
+  let tags' = map (\t -> AppT (ConT t) (VarT a)) $ ''Pathable : ''Show : tags
   build <- return $ InstanceD Nothing tags' (AppT (ConT ''Buildable) (AppT (AppT (ConT ''(:->)) (VarT a)) (AppT (ConT ty) (ConT ''Config)))) [FunD 'build [Clause [AsP pipe (InfixP (VarP a2) '(:->) (AsP a (ConP con (VarP config : replicate (length conArrTypes) WildP))))] (NormalB (LetE [ValD (VarP outs) (NormalB (AppE (VarE 'paths) (VarE pipe))) []] (AppE (AppE (VarE 'withSubmit) (SigE (AppE (AppE (AppE (VarE fun)  (VarE a)) (VarE a2)) (VarE outs)) (AppT (ConT ''Cmd) (TupleT 0)))) (ListE [AppE (ConE 'Left) (VarE config),AppE (ConE 'Right) (AppE (ConE 'CPUs) (LitE (IntegerL 1)))])))) []]]
 
   return [constructorSig, constructor, build]
