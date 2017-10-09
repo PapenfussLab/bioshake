@@ -27,6 +27,7 @@ indexRules = do
 
 $(makeSingleThread ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeThreaded ''SortBam [''IsBam] 'buildSortBam)
+$(makeThreaded ''Sam2Bam [''IsSam] 'buildSam2Bam)
 $(makeThreaded ''MappedOnly [''IsSam] 'buildMappedOnly)
 $(makeSingleThread ''Pileup [''IsBam, ''Referenced, ''Sorted] 'buildPileup)
 $(makeSingleThread ''DeDup [''IsBam] 'buildDedup)

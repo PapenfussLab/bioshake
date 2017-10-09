@@ -19,6 +19,7 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           GHC.TypeLits
 
+data Sam2Bam c = Sam2Bam c deriving Show
 data SortBam c = SortBam c deriving Show
 data DeDup c = DeDup c deriving Show
 data MappedOnly c = MappedOnly c deriving Show
@@ -40,6 +41,11 @@ buildSortBam t _ (paths -> [input]) [out] =
 
 $(makeSingleTypes ''SortBam [''IsBam, ''Sorted] [])
 
+buildSam2Bam t _ (paths -> [input]) [out] =
+  run "samtools view -b" [input] ["-@", show t] ["-o", out]
+
+$(makeSingleTypes ''Sam2Bam [''IsBam] [])
+
 buildMappedOnly t _ (paths -> [input]) [out] =
   run "samtools view -F 4 -b" [input] ["-@", show t] ["-o", out]
 
@@ -57,7 +63,8 @@ $(makeSingleTypes ''DeDup [''IsBam] [''Sorted])
 
 buildBedCov _ a@(paths -> inputs) [out] = do
   let bed = getBED a
-  lift $ need [bed]
+      bais = map ( <.> "bai" ) inputs
+  lift . need $ bed : bais
   run "samtools bedcov" [bed] inputs ">" [out]
 
 $(makeSingleTypes ''BedCov [''IsCov] [])
