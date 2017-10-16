@@ -53,7 +53,7 @@ data Sort c = Sort c deriving Show
 buildSort :: Pathable a => t -> a -> [FilePath] -> FreeT CmdF Action ()
 buildSort _ a@(paths -> [input]) [out] = do
   () <- run "grep '^#'" [input] ">" [out]
-  run "grep -v '^#'" [input] "| LC_ALL=C sort -t '\\t' -k1,1 -k2,2n >>" [out]
+  run "grep -v '^#'" [input] "| LC_ALL=C sort -t $'\\t' -k1,1 -k2,2n >>" [out]
 
 $(makeSingleTypes ''Sort [''IsVCF, ''Sorted] [''NoContigs])
 
