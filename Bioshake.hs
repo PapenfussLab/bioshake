@@ -119,6 +119,38 @@ instance Show a => Show (All a) where
 
 $(allTransTags ''All)
 
+-- |Datatype to split outputs
+
+data On a = On a Int
+
+instance Compilable a => Compilable (On a) where
+  compile (On a _) = compile a
+
+instance Pathable a => Pathable (On a) where
+  paths (On a i) = [paths a !! i]
+
+instance Referenced a => Referenced (On a) where
+  getRef (On a _) = getRef a
+  name (On a _) = name a
+  dbnsfp (On a _) = dbnsfp a
+
+instance Capture a => Capture (On a) where
+  getBED (On a _) = getBED a
+
+instance Show a => Show (On a) where
+  show (On a i) = "(" ++ show a ++ ")_" ++ show i
+
+$(allTransTags ''On)
+
+on :: Pathable a => a -> Int -> On a
+on a i
+  | i >= 0 && i < length (paths a) = On a i
+  | otherwise = error "on: index out of bounds"
+
+split :: Pathable a => a -> [On a]
+split a = [on a i | i <- [0..n - 1]]
+  where
+    n = length $ paths a
 
 -- | Entry point to bioshake. Like 'shakeArgs' but also takes a number of
 -- threads to use.
