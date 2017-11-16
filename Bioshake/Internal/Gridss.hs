@@ -11,19 +11,42 @@ import           Bioshake.Implicit
 import           Bioshake.TH
 import           Development.Shake.FilePath
 
-data Call c = Call c FilePath
+data Call c = Call c deriving Show
 
-buildCall t (Call _ jar) a@(paths -> inputs) [out] =
-  let mem = t * 2 + 8 in
+instance (Show a, Pathable a) => Pathable (a :-> Call c) where
+  paths (a :-> _) = [hashPath (paths a, show a) <.> "gridss" <.> "vcf"
+                    ,hashPath (paths a, show a) <.> "gridss" <.> "bed"]
+
+data Variants = Variants deriving Show
+
+instance (Show a, Pathable a) => Pathable (a :-> Call c :-> Variants) where
+  paths (a :-> _) = [head $ paths a]
+
+instance {-# OVERLAPS #-} Compilable a => Compilable (a :-> Variants) where
+  compile (a :-> _) = compile a
+
+instance IsVCF (a :-> Variants)
+
+data Assemblies = Assemblies deriving Show
+
+instance (Show a, Pathable a) => Pathable (a :-> Call c :-> Assemblies) where
+  paths (a :-> _) = [head . tail $ paths a]
+
+instance {-# OVERLAPS #-} Compilable a => Compilable (a :-> Assemblies) where
+  compile (a :-> _) = compile a
+
+instance IsBed (a :-> Assemblies)
+
+buildCall t _ a@(paths -> inputs) [vcf, ass] =
+  let mem = 31 in
   withTempDirectory' "." "gridss" $ \tmpDir ->
     memLimit mem $
-      run "java -ea" (concat ["-Xmx", show mem, "g"])
-        ["-cp", jar, "au.edu.wehi.idsv.Idsv"]
+      run "gridss" (concat ["-Xmx", show mem, "g"])
+        ["--", "CallVariants"]
         ["TMP_DIR=", tmpDir]
         ["WORKING_DIR=", tmpDir]
-        ["REFERENCE=", getRef a]
-        (concat $ zipWith (\input ic -> ["INPUT=", input, "IC=", show ic]) inputs [1..])
-        ["OUTPUT=", out]
+        ["REFERENCE_SEQUENCE=", getRef a]
+        (concatMap (\i -> ["INPUT=", i]) inputs)
+        ["OUTPUT=", vcf]
+        ["ASSEMBLY=", ass]
         ["WORKER_THREADS=", show t]
-
-$(makeSingleTypes ''Call [''IsVCF] [])

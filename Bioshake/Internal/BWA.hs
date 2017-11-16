@@ -54,13 +54,16 @@ instance Default [BWAOpts] where def = []
 
 data Align c = Align c [BWAOpts] deriving Show
 
-buildBWA t (Align _ opts) a@(paths -> inputs) [out] = do
-    lift $ need [getRef a <.> ext | ext <- ["amb", "ann", "bwt", "pac", "sa"]]
-    run "bwa mem"
-      ["-t", show t]
-      [getRef a]
-      inputs
-      (map show opts)
-      ">" out
+buildBWA t (Align _ opts) a@(paths -> inputs) [out] =
+  if (length inputs > 2 || length inputs == 0)
+    then error "BWA: need 1 single-end read set or 2 paired-end read sets"
+    else do
+      lift $ need [getRef a <.> ext | ext <- ["amb", "ann", "bwt", "pac", "sa"]]
+      run "bwa mem"
+        ["-t", show t]
+        [getRef a]
+        inputs
+        (map show opts)
+        ">" out
 
 $(makeSingleTypes ''Align [''IsSam] [])

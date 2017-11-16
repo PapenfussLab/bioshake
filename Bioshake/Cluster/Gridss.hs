@@ -14,3 +14,6 @@ import           System.Directory
 import           System.IO.Temp
 
 $(makeCluster ''Call [''IsBam, ''Sorted, ''Referenced] 'buildCall)
+
+variants = Variants
+assemblies = Assemblies

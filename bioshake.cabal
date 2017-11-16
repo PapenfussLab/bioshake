@@ -16,37 +16,40 @@ library
                      , Bioshake.ADTEx
                      , Bioshake.Bedtools
                      , Bioshake.BWA
-                     , Bioshake.Cutadapt
-                     , Bioshake.Facets
-                     , Bioshake.FREEC
-                     , Bioshake.Picard
-                     , Bioshake.Platypus
-                     , Bioshake.Samtools
-                     , Bioshake.Sequenza
-                     , Bioshake.SnpEff
-                     , Bioshake.Varscan
                      , Bioshake.Cluster.ADTEx
                      , Bioshake.Cluster.Bedtools
                      , Bioshake.Cluster.BWA
                      , Bioshake.Cluster.Cutadapt
                      , Bioshake.Cluster.FREEC
+                     , Bioshake.Cluster.Gridss
                      , Bioshake.Cluster.Picard
                      , Bioshake.Cluster.Platypus
                      , Bioshake.Cluster.Samtools
                      , Bioshake.Cluster.Sequenza
                      , Bioshake.Cluster.SnpEff
-                     , Bioshake.Cluster.Varscan
                      , Bioshake.Cluster.Torque
+                     , Bioshake.Cluster.Varscan
+                     , Bioshake.Cutadapt
+                     , Bioshake.Facets
+                     , Bioshake.FREEC
+                     , Bioshake.Gridss
                      , Bioshake.Implicit
+                     , Bioshake.Picard
+                     , Bioshake.Platypus
+                     , Bioshake.Samtools
+                     , Bioshake.Sequenza
+                     , Bioshake.SnpEff
                      , Bioshake.Tags
                      , Bioshake.TH
                      , Bioshake.Types
+                     , Bioshake.Varscan
   other-modules:       Bioshake.Internal.ADTEx
                      , Bioshake.Internal.Bedtools
                      , Bioshake.Internal.BWA
                      , Bioshake.Internal.Cutadapt
                      , Bioshake.Internal.Facets
                      , Bioshake.Internal.FREEC
+                     , Bioshake.Internal.Gridss
                      , Bioshake.Internal.Picard
                      , Bioshake.Internal.Platypus
                      , Bioshake.Internal.Samtools
