@@ -22,6 +22,8 @@ library
                      , Bioshake.Cluster.Cutadapt
                      , Bioshake.Cluster.FREEC
                      , Bioshake.Cluster.Gridss
+                     , Bioshake.Cluster.Kallisto
+                     , Bioshake.Cluster.Octopus
                      , Bioshake.Cluster.Picard
                      , Bioshake.Cluster.Platypus
                      , Bioshake.Cluster.Samtools
@@ -34,6 +36,8 @@ library
                      , Bioshake.FREEC
                      , Bioshake.Gridss
                      , Bioshake.Implicit
+                     , Bioshake.Kallisto
+                     , Bioshake.Octopus
                      , Bioshake.Picard
                      , Bioshake.Platypus
                      , Bioshake.Samtools
@@ -50,6 +54,8 @@ library
                      , Bioshake.Internal.Facets
                      , Bioshake.Internal.FREEC
                      , Bioshake.Internal.Gridss
+                     , Bioshake.Internal.Kallisto
+                     , Bioshake.Internal.Octopus
                      , Bioshake.Internal.Picard
                      , Bioshake.Internal.Platypus
                      , Bioshake.Internal.Samtools
