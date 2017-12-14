@@ -18,15 +18,21 @@ data OctopusOpts where
   NormalSample :: String -> OctopusOpts
   Fast :: OctopusOpts
   VeryFast :: OctopusOpts
+  Debug :: OctopusOpts
+  NoFilter :: OctopusOpts
 
 instance Show OctopusOpts where
   show (NormalSample x) = "--normal-sample " ++x
   show Fast = "--fast"
   show VeryFast = "--very-fast"
+  show Debug = "--debug"
+  show NoFilter = "-f off"
 
 normalSample x = if length x == 0 then error "Octopus: need non-empty name for normal sample" else NormalSample x
 fast = Fast
 veryFast = VeryFast
+debug = Debug
+noFilter = NoFilter
 
 data Call c = Call c [OctopusOpts] deriving Show
 

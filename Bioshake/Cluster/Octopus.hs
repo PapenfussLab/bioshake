@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
-module Bioshake.Cluster.Octopus(call, normalSample, fast, veryFast) where
+module Bioshake.Cluster.Octopus(call, normalSample, fast, veryFast, debug, noFilter) where
 
 import           Bioshake
 import           Bioshake.Cluster.Torque
