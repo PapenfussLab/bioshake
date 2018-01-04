@@ -21,7 +21,7 @@ import           GHC.TypeLits
 
 data Sam2Bam c = Sam2Bam c deriving Show
 data SortBam c = SortBam c deriving Show
-data DeDup c = DeDup c deriving Show
+data MarkDups c = MarkDups c deriving Show
 data MappedOnly c = MappedOnly c deriving Show
 data Pileup c = Pileup c deriving Show
 data AddRGLine c = AddRGLine c String deriving Show
@@ -56,10 +56,10 @@ buildPileup _ a@(paths -> inputs) [out] =
 
 $(makeSingleTypes ''Pileup [''IsMPileup] [])
 
-buildDedup _ (paths -> [input]) [out] =
-  run "samtools rmdup" [input] [out]
+buildMarkDups _ (paths -> [input]) [out] =
+  run "samtools markdup" [input] [out]
 
-$(makeSingleTypes ''DeDup [''IsBam] [''Sorted])
+$(makeSingleTypes ''MarkDups [''IsBam] [''Sorted])
 
 buildBedCov _ a@(paths -> inputs) [out] = do
   let bed = getBED a

@@ -30,6 +30,6 @@ $(makeThreaded ''SortBam [''IsBam] 'buildSortBam)
 $(makeThreaded ''Sam2Bam [''IsSam] 'buildSam2Bam)
 $(makeThreaded ''MappedOnly [''IsSam] 'buildMappedOnly)
 $(makeSingleThread ''Pileup [''IsBam, ''Referenced, ''Sorted] 'buildPileup)
-$(makeSingleThread ''DeDup [''IsBam] 'buildDedup)
+$(makeSingleThread ''MarkDups [''IsBam] 'buildMarkDups)
 $(makeSingleThread ''BedCov [''IsBam, ''Capture] 'buildBedCov)
 {- $bedCov Computes coverage for each capture region -}
