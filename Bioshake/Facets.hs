@@ -6,7 +6,6 @@
 module Bioshake.Facets where
 
 import           Bioshake
-import           Bioshake.Implicit
 import           Bioshake.Internal.Facets
 import           Bioshake.TH
 import           Development.Shake

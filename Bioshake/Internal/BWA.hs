@@ -10,7 +10,6 @@
 module Bioshake.Internal.BWA where
 
 import           Bioshake                   hiding (C)
-import           Bioshake.Implicit
 import           Bioshake.TH
 import           Control.Monad.Trans        (lift)
 import           Data.List
@@ -49,8 +48,6 @@ c x  = if x > 0 then C x else error "BWA: failed c > 0"
 dc x = if x > 0 then DC x else error "BWA: failed dc > 0"
 w x  = if x > 0 then W x else error "BWA: failed w > 0"
 m x  = if x > 0 then M x else error "BWA: failed m > 0"
-
-instance Default [BWAOpts] where def = []
 
 data Align c = Align c [BWAOpts] deriving Show
 

@@ -1,7 +1,8 @@
 {-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE GADTs  #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs             #-}
 {-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeOperators     #-}
 {-# LANGUAGE ViewPatterns      #-}
 module Bioshake.Internal.Kallisto where
 
@@ -15,6 +16,7 @@ import           Development.Shake.FilePath
 import           System.Posix.Files         (createLink, rename)
 
 class IsKal c
+instance IsKal c => IsKal (c :-> Out)
 
 data Quant c = Quant c [QuantOpts] deriving Show
 data QuantSingle c = QuantSingle c [QuantOpts] deriving Show
@@ -26,27 +28,25 @@ data QuantOpts where
   FragmentSD :: Double -> QuantOpts
   Single :: QuantOpts
 
-instance Default [QuantOpts] where def = []
-
 instance Show QuantOpts where
-  show (Bootstrap n) = "--bootstrap-samples=" ++ show n
-  show (Seed s) = "--seed=" ++ show s
+  show (Bootstrap n)      = "--bootstrap-samples=" ++ show n
+  show (Seed s)           = "--seed=" ++ show s
   show (FragmentLength d) = "--fragment-length=" ++ show d
-  show (FragmentSD d) = "--sd=" ++ show d
-  show Single = "--single"
+  show (FragmentSD d)     = "--sd=" ++ show d
+  show Single             = "--single"
 
 bootstrap x = if x > 1 then Bootstrap x else error "Kallisto: need positive number of bootstrap samples"
 fragmentLength x = if x > 0 then FragmentLength x else error "Kallisto: fragment length must be positive"
 fragmentSD x = if x > 0 then FragmentSD x else error "Kallisto: fragment SD must be positive"
 seed = Seed
 
-hasFragmentSD [] = False
+hasFragmentSD []                 = False
 hasFragmentSD (FragmentSD _ : _) = True
-hasFragmentSD (x:xs) = hasFragmentSD xs
+hasFragmentSD (x:xs)             = hasFragmentSD xs
 
-hasFragmentLength [] = False
+hasFragmentLength []                     = False
 hasFragmentLength (FragmentLength _ : _) = True
-hasFragmentLength (x:xs) = hasFragmentLength xs
+hasFragmentLength (x:xs)                 = hasFragmentLength xs
 
 buildKallisto t (Quant _ opts) a@(paths -> inputs@[_,_]) [out] =
   let idx = getRef a <.> "idx" in

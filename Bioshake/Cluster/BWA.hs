@@ -7,20 +7,22 @@ module Bioshake.Cluster.BWA(indexRules, align, k, bw, d, r, y, c, dc, w, m) wher
 
 import           Bioshake
 import           Bioshake.Cluster.Torque
-import           Bioshake.Implicit
 import           Bioshake.Internal.BWA
 import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
-indexRules :: Implicit Config => Rules ()
+indexRules :: Given Config => Rules ()
 indexRules =
   ["//*" <.> ext | ext <- ["amb", "ann", "bwt", "pac", "sa"]] &%> \(o:_) -> do
     let i = dropExtension o
     need [i]
-    withSubmit (run "bwa index" [i]) [Left param]
+    withSubmit (run "bwa index" [i]) [Left given]
 
-align :: (Implicit Config, Implicit [BWAOpts]) => Align Config
-align = Align param param
+alignWith :: Given Config => [BWAOpts] -> Align Config
+alignWith = Align given
+
+align :: Given Config => Align Config
+align = alignWith []
 
 $(makeCluster' ''Align [''Referenced, ''IsFastQ] 'buildBWA)

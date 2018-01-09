@@ -6,10 +6,10 @@
 -- | Core data types the pipeline abstraction.
 module Bioshake.Types where
 
-import           Bioshake.Implicit
 import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.State.Strict
+import           Data.Reflection
 import qualified Data.Set                         as S
 import           Data.String
 import           Development.Shake
@@ -20,7 +20,7 @@ infixl 1 :->
 
 -- | Buildable abstracts things that can be turned into shake 'Action's.
 class Buildable a where
-  build :: Implicit Resource => a -> Action ()
+  build :: Given Resource => a -> Action ()
 
 -- | The compiler tracks the set of output files to ensure duplicate 'Rules' are
 -- not generated. This allows multiple potentially overlapping pipelines to be
@@ -34,7 +34,7 @@ compileRules p = evalStateT p mempty
 -- | Pipelines are 'Compilable' when they can be compiled down to a set of
 -- 'Rules' that build a list of output paths.
 class Compilable a where
-  compile :: Implicit Resource => a -> Compiler ()
+  compile :: Given Resource => a -> Compiler ()
   compile = return $ return mempty
 
 -- | A pipeline @a :-> b@ is 'Compilable' to 'Rules' if @a@ is 'Compilable' and

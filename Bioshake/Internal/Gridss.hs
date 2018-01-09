@@ -7,7 +7,6 @@
 module Bioshake.Internal.Gridss where
 
 import           Bioshake
-import           Bioshake.Implicit
 import           Bioshake.TH
 import           Development.Shake.FilePath
 

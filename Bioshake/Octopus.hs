@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
-module Bioshake.Octopus(call, normalSample, fast, veryFast, debug, noFilter) where
+module Bioshake.Octopus(call, callWith, normalSample, fast, veryFast, debug, noFilter) where
 
 import           Bioshake
 import           Bioshake.Internal.Octopus
@@ -11,7 +11,10 @@ import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-call :: (Implicit Threads, Implicit [OctopusOpts]) => Call Threads
-call = Call param param
+callWith :: Given Threads => [OctopusOpts] -> Call Threads
+callWith = Call given
+
+call :: Given Threads => Call Threads
+call = callWith []
 
 $(makeThreaded' ''Call [''Referenced, ''IsBam, ''Sorted] 'buildOctopus)

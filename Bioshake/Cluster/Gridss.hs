@@ -6,7 +6,6 @@
 module Bioshake.Cluster.Gridss where
 
 import           Bioshake
-import           Bioshake.Implicit
 import           Bioshake.Internal.Gridss
 import           Bioshake.TH
 import           Development.Shake

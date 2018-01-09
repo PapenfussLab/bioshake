@@ -5,7 +5,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Bioshake.Cluster.Torque where
 
-import           Bioshake.Implicit
 import           Control.Monad
 import           Data.Either
 import           Data.List

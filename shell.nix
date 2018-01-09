@@ -6,7 +6,7 @@ let
 
   f = { mkDerivation, base, binary, bytestring, containers
       , cryptonite, directory, free, mtl, shake, split, stdenv
-      , template-haskell, temporary, transformers, unix
+      , template-haskell, temporary, transformers, unix, reflection
       }:
       mkDerivation {
         pname = "bioshake";
@@ -14,7 +14,7 @@ let
         src = ./.;
         libraryHaskellDepends = [
           base binary bytestring containers cryptonite directory free mtl
-          shake split template-haskell temporary transformers unix
+          shake split template-haskell temporary transformers unix reflection
         ];
         description = "Bioinformatics pipelines with shake";
         license = stdenv.lib.licenses.isc;

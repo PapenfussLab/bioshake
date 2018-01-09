@@ -8,7 +8,6 @@
 module Bioshake.Samtools where
 
 import           Bioshake
-import           Bioshake.Implicit
 import           Bioshake.Internal.Samtools
 import           Bioshake.TH
 import           Development.Shake

@@ -13,7 +13,7 @@
 -- the type system, and pipelines are compiled down to "Development.Shake"
 -- 'Rules' for actual execution.
 module Bioshake( module Types
-               , module Implicit
+               , module Data.Reflection
                , module Tags
                , All(..)
                , Referenced(..)
@@ -22,11 +22,11 @@ module Bioshake( module Types
                , withTempDirectory
                , bioshake
                , out
+               , Out
                , withAll
                , withPair) where
 
 import           Bioshake.Cluster.Torque
-import           Bioshake.Implicit                as Implicit
 import           Bioshake.Tags                    as Tags
 import           Bioshake.Types                   as Types
 import qualified Control.Exception                as E
@@ -34,6 +34,7 @@ import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.State.Strict
 import           Data.List
+import           Data.Reflection                  (Given, give, given)
 import qualified Data.Set                         as S
 import           Data.String
 import           Development.Shake
@@ -156,10 +157,10 @@ split a = [on a i | i <- [0..n - 1]]
 -- threads to use.
 bioshake :: Int -- ^ Number of threads
          -> ShakeOptions -- ^ Options to pass to 'shakeArgs'.
-         -> (Implicit Resource => Rules ()) -> IO ()
+         -> (Given Resource => Rules ()) -> IO ()
 bioshake n opts cont = shakeArgs opts{shakeThreads = n} $ do
   res <- newResource "cpus" n
-  cont $~ res
+  give res cont
 
 -- | Creates a temporary directory under a target directory according to a
 -- naming template. The directory is cleaned up after executing the action. This

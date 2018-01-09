@@ -6,7 +6,6 @@
 module Bioshake.BWA(indexRules, align, k, bw, d, r, y, c, dc, w, m) where
 
 import           Bioshake
-import           Bioshake.Implicit
 import           Bioshake.Internal.BWA
 import           Bioshake.TH
 import           Development.Shake
@@ -18,8 +17,11 @@ indexRules =
     need [i]
     cmd "bwa index" [i]
 
-align :: (Implicit Threads, Implicit [BWAOpts]) => Align Threads
-align = Align param param
+alignWith :: Given Threads => [BWAOpts] -> Align Threads
+alignWith = Align given
+
+align :: Given Threads => Align Threads
+align = alignWith []
 
 $(makeThreaded' ''Align [''Referenced, ''IsFastQ] 'buildBWA)
 {- $align Aligns fastq files against the reference using BWA-mem. -}

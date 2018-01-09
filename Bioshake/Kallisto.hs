@@ -1,11 +1,13 @@
+{-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
-{-# LANGUAGE KindSignatures      #-}
-{-# LANGUAGE DataKinds      #-}
 {-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
 module Bioshake.Kallisto(quant
+                        ,quantWith
                         ,quantSingle
+                        ,quantSingleWith
                         ,abundance
                         ,bootstrap
                         ,seed
@@ -16,7 +18,6 @@ module Bioshake.Kallisto(quant
 import           Bioshake
 import           Bioshake.Internal.Kallisto
 import           Bioshake.TH
-import           Bioshake.Implicit
 import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
@@ -25,11 +26,17 @@ $(makeThreaded' ''Quant [''Referenced, ''IsFastQ, ''PairedEnd] 'buildKallisto)
 $(makeThreaded' ''QuantSingle [''Referenced, ''IsFastQ] 'buildKallistoSingle)
 $(makeSingleThread ''Abundance [''IsKal] 'buildAbundance)
 
-quant :: (Implicit Threads, Implicit [QuantOpts]) => Quant Threads
-quant = Quant param param
+quant :: Given Threads => Quant Threads
+quant = Quant given []
 
-quantSingle :: (Implicit Threads, Implicit [QuantOpts]) => QuantSingle Threads
-quantSingle = check $ QuantSingle param param
+quantWith :: Given Threads => [QuantOpts] -> Quant Threads
+quantWith cfg = Quant given cfg
+
+quantSingle :: Given Threads => QuantSingle Threads
+quantSingle = quantSingleWith []
+
+quantSingleWith :: Given Threads => [QuantOpts] -> QuantSingle Threads
+quantSingleWith cfg = check $ QuantSingle given cfg
   where
     check a@(QuantSingle _ opts) =
       if hasFragmentLength opts && hasFragmentSD opts then

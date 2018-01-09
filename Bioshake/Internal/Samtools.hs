@@ -11,7 +11,6 @@
 module Bioshake.Internal.Samtools where
 
 import           Bioshake
-import           Bioshake.Implicit
 import           Bioshake.TH
 import           Control.Monad.Trans        (lift)
 import           Data.Proxy
