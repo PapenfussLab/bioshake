@@ -11,6 +11,8 @@ module Bioshake.Kallisto(quant
                         ,abundance
                         ,bootstrap
                         ,seed
+                        ,fusion
+                        ,fusions
                         ,fragmentLength
                         ,fragmentSD
                         ,indexRules) where
@@ -25,12 +27,13 @@ import           Development.Shake.FilePath
 $(makeThreaded' ''Quant [''Referenced, ''IsFastQ, ''PairedEnd] 'buildKallisto)
 $(makeThreaded' ''QuantSingle [''Referenced, ''IsFastQ] 'buildKallistoSingle)
 $(makeSingleThread ''Abundance [''IsKal] 'buildAbundance)
+$(makeSingleThread ''Fusions [''IsKal] 'buildFusions)
 
 quant :: Given Threads => Quant Threads
 quant = Quant given []
 
 quantWith :: Given Threads => [QuantOpts] -> Quant Threads
-quantWith cfg = Quant given cfg
+quantWith = Quant given
 
 quantSingle :: Given Threads => QuantSingle Threads
 quantSingle = quantSingleWith []

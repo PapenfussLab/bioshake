@@ -10,6 +10,7 @@ module Bioshake.Cluster.Kallisto(quant
                                 ,quantSingleWith
                                 ,bootstrap
                                 ,seed
+                                ,fusion
                                 ,fragmentLength
                                 ,fragmentSD
                                 ,indexRules) where
@@ -29,7 +30,7 @@ quant :: Given Config => Quant Config
 quant = Quant given []
 
 quantWith :: Given Config => [QuantOpts] -> Quant Config
-quantWith cfg = Quant given cfg
+quantWith = Quant given
 
 quantSingle :: Given Config => QuantSingle Config
 quantSingle = quantSingleWith []
