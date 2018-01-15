@@ -28,8 +28,10 @@ indexRules = do
 
 $(makeSingleCluster ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeCluster ''SortBam [''IsBam] 'buildSortBam)
+$(makeCluster ''NameSortBam [''IsBam] 'buildNameSortBam)
 $(makeCluster ''Sam2Bam [''IsSam] 'buildSam2Bam)
 $(makeCluster ''MappedOnly [''IsSam] 'buildMappedOnly)
 $(makeSingleCluster ''Pileup [''IsBam, ''Referenced, ''Sorted] 'buildPileup)
-$(makeSingleCluster ''MarkDups [''IsBam] 'buildMarkDups)
+$(makeSingleCluster ''FixMates [''IsBam, ''NameSorted, ''PairedEnd] 'buildFixMates)
+$(makeSingleCluster ''MarkDups [''IsBam, ''Sorted, ''MS] 'buildMarkDups)
 $(makeSingleCluster ''BedCov [''IsBam, ''Capture] 'buildBedCov)

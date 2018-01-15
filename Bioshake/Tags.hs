@@ -28,6 +28,9 @@ instance PairedEnd a => PairedEnd (a :-> b)
 -- | Sorted (e.g., sorted sam/bam, or bed)
 class Sorted a
 
+-- | Name sorted
+class NameSorted a
+
 -- | Filted to a capture region
 class CaptureOnly a
 
@@ -62,7 +65,8 @@ allTags = [''IsFastQ
           ,''IsTGZ
           ,''IsCov
           ,''PairedEnd
-          ,''Sorted]
+          ,''Sorted
+          ,''NameSorted]
 
 -- Tagging TH
 

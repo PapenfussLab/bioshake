@@ -26,9 +26,11 @@ indexRules = do
 
 $(makeSingleThread ''AddRGLine [''IsBam] 'buildAddRGLine)
 $(makeThreaded ''SortBam [''IsBam] 'buildSortBam)
+$(makeThreaded ''NameSortBam [''IsBam] 'buildNameSortBam)
 $(makeThreaded ''Sam2Bam [''IsSam] 'buildSam2Bam)
 $(makeThreaded ''MappedOnly [''IsSam] 'buildMappedOnly)
 $(makeSingleThread ''Pileup [''IsBam, ''Referenced, ''Sorted] 'buildPileup)
-$(makeSingleThread ''MarkDups [''IsBam] 'buildMarkDups)
+$(makeSingleThread ''FixMates [''IsBam, ''NameSorted, ''PairedEnd] 'buildFixMates)
+$(makeSingleThread ''MarkDups [''IsBam, ''Sorted, ''MS] 'buildMarkDups)
 $(makeSingleThread ''BedCov [''IsBam, ''Capture] 'buildBedCov)
 {- $bedCov Computes coverage for each capture region -}
