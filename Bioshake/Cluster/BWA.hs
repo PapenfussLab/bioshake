@@ -3,7 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
-module Bioshake.Cluster.BWA(indexRules, align, k, bw, d, r, y, c, dc, w, m) where
+module Bioshake.Cluster.BWA(indexRules, align, alignWith, k, bw, d, r, y, c, dc, w, m, rg) where
 
 import           Bioshake
 import           Bioshake.Cluster.Torque

@@ -27,6 +27,7 @@ data BWAOpts where
   DC :: Double -> BWAOpts
   W  :: Int    -> BWAOpts
   M  :: Int    -> BWAOpts
+  RG :: String -> BWAOpts
 
 instance Show BWAOpts where
   show (K p)  = "-k" ++ show p
@@ -38,6 +39,7 @@ instance Show BWAOpts where
   show (DC p) = "-D" ++ show p
   show (W p)  = "-W" ++ show p
   show (M p)  = "-m" ++ show p
+  show (RG r) = concat ["-R", "'@RG\\tID:", r, "\\tSM:", r, "'"]
 
 k x  = if x > 0 then K x else error "BWA: failed k > 0"
 bw x = if x > 0 then BW x else error "BWA: failed bw > 0"
@@ -48,6 +50,7 @@ c x  = if x > 0 then C x else error "BWA: failed c > 0"
 dc x = if x > 0 then DC x else error "BWA: failed dc > 0"
 w x  = if x > 0 then W x else error "BWA: failed w > 0"
 m x  = if x > 0 then M x else error "BWA: failed m > 0"
+rg r = if r /= "" then RG r else error "BWA: require non-empty rg string"
 
 data Align c = Align c [BWAOpts] deriving Show
 
