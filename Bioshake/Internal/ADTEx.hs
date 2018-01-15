@@ -15,7 +15,7 @@ data Call c = Call c deriving Show
 
 buildADTEx _  a@(paths -> [normal, tumour]) [out] =
   let bed = getBED a
-  in withTempDirectory' "." "adtex" $ \tmpDir -> do
+  in withTempDirectory' "tmp" "adtex" $ \tmpDir -> do
     let tmpDir' = tmpDir </> "out"
     () <- run "ADTEx.py"
       ["-n", normal]

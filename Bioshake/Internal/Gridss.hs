@@ -38,7 +38,7 @@ instance IsBed (a :-> Assemblies)
 
 buildCall t _ a@(paths -> inputs) [vcf, ass] =
   let mem = 31 in
-  withTempDirectory' "." "gridss" $ \tmpDir ->
+  withTempDirectory' "tmp" "gridss" $ \tmpDir ->
     memLimit mem $
       run "gridss" (concat ["-Xmx", show mem, "g"])
         ["--", "CallVariants"]
