@@ -17,6 +17,9 @@ import           Language.Haskell.TH
 class DeDuped a
 instance DeDuped a => DeDuped (a :-> b)
 
+-- | Duplicated reads have been marked
+class DupsMarked a
+
 -- | Contains an RG line
 class HasRG a
 instance (HasRG a, IsBam (a :-> b)) => HasRG (a :-> b)
@@ -51,6 +54,7 @@ class IsCov a
 
 allTags = [''IsFastQ
           ,''DeDuped
+          ,''DupsMarked
           ,''HasRG
           ,''IsBam
           ,''IsBcf

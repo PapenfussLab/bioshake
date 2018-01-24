@@ -37,7 +37,7 @@ buildAddRGLine (AddRGLine _ name) (paths -> [input]) [out] =
     ["-o", out]
     "-O bam"
 
-$(makeSingleTypes ''AddRGLine [''IsBam, ''HasRG] [''Sorted, ''MS])
+$(makeSingleTypes ''AddRGLine [''IsBam, ''HasRG] [''NameSorted, ''Sorted, ''MS])
 
 buildSortBam t _ (paths -> [input]) [out] =
   run "samtools sort" [input] ["-@", show t] ["-o", out]
@@ -52,7 +52,7 @@ $(makeSingleTypes ''NameSortBam [''IsBam, ''NameSorted] [''MS])
 buildSam2Bam t _ (paths -> [input]) [out] =
   run "samtools view -b" [input] ["-@", show t] ["-o", out]
 
-$(makeSingleTypes ''Sam2Bam [''IsBam] [''MS])
+$(makeSingleTypes ''Sam2Bam [''IsBam] [''MS, ''Sorted, ''NameSorted])
 
 buildMappedOnly t _ (paths -> [input]) [out] =
   run "samtools view -F 4 -b" [input] ["-@", show t] ["-o", out]
@@ -72,7 +72,7 @@ $(makeSingleTypes ''FixMates [''IsBam, ''MS] [''NameSorted])
 buildMarkDups _ (paths -> [input]) [out] =
   run "samtools markdup" [input] [out]
 
-$(makeSingleTypes ''MarkDups [''IsBam] [''Sorted, ''MS])
+$(makeSingleTypes ''MarkDups [''IsBam, ''DupsMarked] [''Sorted, ''MS])
 
 buildBedCov _ a@(paths -> inputs) [out] = do
   let bed = getBED a
