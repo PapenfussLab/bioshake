@@ -3,7 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
-module Bioshake.BWA(indexRules, align, alignWith, k, bw, d, r, y, c, dc, w, m, rg) where
+module Bioshake.BWA(indexRules, align, alignWith, k, bw, d, r, y, c, dc, w, m, rg, softClip) where
 
 import           Bioshake
 import           Bioshake.Internal.BWA
