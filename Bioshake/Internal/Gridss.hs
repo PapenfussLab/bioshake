@@ -24,11 +24,11 @@ buildComputeSamTags _ a@(paths -> [input]) [out] = do
       run "gridss" (concat ["-Xmx", show mem, "g"])
         ["--", "ComputeSamTags"]
         ["TMP_DIR=", tmpDir]
-        ["WORKING_DIR=", tmpDir]
         ["REFERENCE_SEQUENCE=", ref]
         ["INPUT=", input]
         ["OUTPUT=", out]
         "ASSUME_SORTED=TRUE"
+        "WORKING_DIR=tmp/"
 
 $(makeSingleTypes ''ComputeSamTags [''IsBam] [''NameSorted])
 
@@ -43,11 +43,11 @@ buildSoftClipsToSplitReads t _ a@(paths -> [input]) [out] = do
       run "gridss" (concat ["-Xmx", show mem, "g"])
         ["--", "SoftClipsToSplitReads"]
         ["TMP_DIR=", tmpDir]
-        ["WORKING_DIR=", tmpDir]
         ["REFERENCE_SEQUENCE=", ref]
         ["INPUT=", input]
         ["OUTPUT=", out]
         ["WORKER_THREADS=", show t]
+        "WORKING_DIR=tmp/"
 
 $(makeSingleTypes ''SoftClipsToSplitReads [''IsBam] [''Sorted, ''NameSorted])
 
@@ -67,13 +67,16 @@ buildCollectMetrics _ a@(paths -> [input]) outs = do
       "THRESHOLD_COVERAGE=10000"
 
 instance (Pathable a, Show a) => Pathable (a :-> CollectMetrics c) where
-  paths (a :-> _) = let [p] = paths a in [p <.> ext ++ "_metrics" | ext <- ["idsv"
-                                                                           ,"cigar"
-                                                                           ,"tag"]]
+  paths (a :-> _) = let [p] = paths a in ["tmp" </> takeFileName p <.> ext ++ "_metrics" | ext <- ["idsv"
+                                                                                                  ,"cigar"
+                                                                                                  ,"tag"]]
 
-class GridssMetrics c
-instance GridssMetrics (a :-> CollectMetrics c)
-instance GridssMetrics a => GridssMetrics (All a)
+class GridssMetrics c where
+  metricBams :: c -> [FilePath]
+instance Pathable a => GridssMetrics (a :-> CollectMetrics c) where
+  metricBams (a :-> _) = paths a
+instance GridssMetrics a => GridssMetrics (All a) where
+  metricBams (All as) = concatMap metricBams as
 instance Sorted a => Sorted (a :-> CollectMetrics c)
 instance DupsMarked a => DupsMarked (a :-> CollectMetrics c)
 
@@ -81,8 +84,8 @@ class GridssAssembly a where
   assemblyInputs :: a -> [FilePath]
   assembly :: a -> FilePath
 
-instance {-# OVERLAPPING #-} (Show a, Show c, Pathable a) => GridssAssembly (a :-> AssembleBreakends c) where
-  assemblyInputs (a :-> _) = nub . map dropExtension $ paths a
+instance {-# OVERLAPPING #-} (Show a, Show c, Pathable a, GridssMetrics a) => GridssAssembly (a :-> AssembleBreakends c) where
+  assemblyInputs (a :-> _) = metricBams a
   assembly a = head $ paths a
 
 instance {-# OVERLAPPING #-} GridssAssembly a => GridssAssembly (a :-> b) where
@@ -91,47 +94,47 @@ instance {-# OVERLAPPING #-} GridssAssembly a => GridssAssembly (a :-> b) where
 
 data AssembleBreakends c = AssembleBreakends c deriving Show
 
-buildAssembleBreakends t _ a@(paths -> inputs) [out] = do
+buildAssembleBreakends t _ a [out] = do
   let mem = 31
       ref = getRef a
-      inputs' = nub $ map dropExtension inputs
+      inputs = metricBams a
   lift . need $ (ref <.> "fai") : [ref <.> ext | ext <- ["amb", "ann", "bwt", "pac", "sa"]]
-  lift $ need inputs'
-  lift $ need [input <.> "bai" | input <- inputs']
+  lift $ need inputs
+  lift $ need [input <.> "bai" | input <- inputs]
   withTempDirectory' "tmp" "gridss" $ \tmpDir ->
     memLimit mem $
       run "gridss" (concat ["-Xmx", show mem, "g"])
         ["--", "AssembleBreakends"]
         ["TMP_DIR=", tmpDir]
-        ["WORKING_DIR=", tmpDir]
         ["REFERENCE_SEQUENCE=", ref]
-        (concatMap (\i -> ["INPUT=", i]) inputs')
+        (concatMap (\i -> ["INPUT=", i]) inputs)
         ["OUTPUT=", out]
         ["WORKER_THREADS=", show t]
+        "WORKING_DIR=tmp/"
 
 $(makeSingleTypes ''AssembleBreakends [''IsBam] [])
 
 data IdentifyVariants c = IdentifyVariants c deriving Show
 
-buildIdentifyVariants t _ a@(paths -> inputs) [out] = do
+buildIdentifyVariants t _ a [out] = do
   let mem = 31
       ref = getRef a
       assInputs = assemblyInputs a
-      [input] = nub $ map dropExtension inputs
+      [input] = metricBams a
   lift . need $ (ref <.> "fai") : [ref <.> ext | ext <- ["amb", "ann", "bwt", "pac", "sa"]]
   lift $ need assInputs
-  lift . need $ map (-<.> "bai") inputs
+  lift $ need [input <.> "bai"]
   withTempDirectory' "tmp" "gridss" $ \tmpDir ->
     memLimit mem $
       run "gridss" (concat ["-Xmx", show mem, "g"])
         ["--", "IdentifyVariants"]
         ["TMP_DIR=", tmpDir]
-        ["WORKING_DIR=", tmpDir]
         ["REFERENCE_SEQUENCE=", ref]
         (concatMap (\i -> ["INPUT=", i]) assInputs)
         ["ASSEMBLY=", input]
         ["OUTPUT_VCF=", out]
         ["WORKER_THREADS=", show t]
+        "WORKING_DIR=tmp/"
 
 $(makeSingleTypes ''IdentifyVariants [''IsVCF] [])
 
@@ -148,13 +151,13 @@ buildAnnotateVariants t _ a@(paths -> [input]) [out] = do
       run "gridss" (concat ["-Xmx", show mem, "g"])
         ["--", "AnnotateVariants"]
         ["TMP_DIR=", tmpDir]
-        ["WORKING_DIR=", tmpDir]
         ["REFERENCE_SEQUENCE=", ref]
         (concatMap (\i -> ["INPUT=", i]) assInputs)
         ["INPUT_VCF=", input]
         ["ASSEMBLY=", assembly a]
         ["OUTPUT_VCF=", out]
         ["WORKER_THREADS=", show t]
+        "WORKING_DIR=tmp/"
 
 $(makeSingleTypes ''AnnotateVariants [''IsVCF] [])
 
@@ -193,9 +196,9 @@ buildCall t _ a@(paths -> inputs) [vcf, ass] = do
       run "gridss" (concat ["-Xmx", show mem, "g"])
         ["--", "CallVariants"]
         ["TMP_DIR=", tmpDir]
-        ["WORKING_DIR=", tmpDir]
         ["REFERENCE_SEQUENCE=", ref]
         (concatMap (\i -> ["INPUT=", i]) inputs)
         ["OUTPUT=", vcf]
         ["ASSEMBLY=", ass]
         ["WORKER_THREADS=", show t]
+        "WORKING_DIR=tmp/"
