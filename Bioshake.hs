@@ -56,11 +56,16 @@ class Referenced a where
   dbnsfp :: a -> FilePath
   dbnsfp _ = error "dbNSFP not available"
 
+  -- | Gene annotations
+  annotations :: a -> FilePath
+  annotations _ = error "annotations not available"
+
 -- | References flows down the pipeline regardless of the stage
 instance Referenced a => Referenced (a :-> b) where
   getRef (a :-> _) = getRef a
   name (a :-> _) = name a
   dbnsfp (a :-> _) = dbnsfp a
+  annotations (a :-> _) = annotations a
 
 -- | Asserts a capture region.
 class Capture a where
@@ -110,6 +115,7 @@ instance Referenced a => Referenced (All a) where
   getRef (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap getRef as
   name (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap name as
   dbnsfp (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap dbnsfp as
+  annotations (All as) =  foldl1 (\l r -> if l == r then l else error "cannot combine mixed references") $ fmap annotations as
 
 -- |Fan-ins are a 'Capture' iff all items are consistent.
 instance Capture a => Capture (All a) where
@@ -134,6 +140,7 @@ instance Referenced a => Referenced (On a) where
   getRef (On a _) = getRef a
   name (On a _) = name a
   dbnsfp (On a _) = dbnsfp a
+  annotations (On a _) = annotations a
 
 instance Capture a => Capture (On a) where
   getBED (On a _) = getBED a

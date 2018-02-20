@@ -19,6 +19,7 @@ library
                      , Bioshake.Cluster.ADTEx
                      , Bioshake.Cluster.Bedtools
                      , Bioshake.Cluster.BWA
+                     , Bioshake.Cluster.CNVkit
                      , Bioshake.Cluster.Cutadapt
                      , Bioshake.Cluster.FREEC
                      , Bioshake.Cluster.Gridss
@@ -31,6 +32,7 @@ library
                      , Bioshake.Cluster.SnpEff
                      , Bioshake.Cluster.Torque
                      , Bioshake.Cluster.Varscan
+                     , Bioshake.CNVkit
                      , Bioshake.Cutadapt
                      , Bioshake.Facets
                      , Bioshake.FREEC
@@ -49,6 +51,7 @@ library
   other-modules:       Bioshake.Internal.ADTEx
                      , Bioshake.Internal.Bedtools
                      , Bioshake.Internal.BWA
+                     , Bioshake.Internal.CNVkit
                      , Bioshake.Internal.Cutadapt
                      , Bioshake.Internal.Facets
                      , Bioshake.Internal.FREEC
