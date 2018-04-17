@@ -57,7 +57,7 @@ $(makeSingleTypes ''Sam2Bam [''IsBam] [''MS, ''Sorted, ''NameSorted])
 buildMappedOnly t _ (paths -> [input]) [out] =
   run "samtools view -F 4 -b" [input] ["-@", show t] ["-o", out]
 
-$(makeSingleTypes ''MappedOnly [''IsBam] [''Sorted, ''MS])
+$(makeSingleTypes ''MappedOnly [''IsBam] [''MS, ''Sorted, ''NameSorted])
 
 buildPileup _ a@(paths -> inputs) [out] =
   run "samtools mpileup -q1 -B" ["-f", getRef a] inputs ["-o", out]
