@@ -59,12 +59,6 @@ Finally, we describe how to get the paths for a Sample:
 > instance Pathable Sample where
 >   paths (Sample a b) = [a, b]
 
-Bioshake support multithreaded jobs, but for the purposes of this simple example
-we'll just run jobs in a single thread by default.
-
-> instance Default Threads where
->   def = Threads 1
-
 Command line arguments are naïvly parsed: we simply assume each pair of
 arguments are paths to the paired-end reads.
 
@@ -80,12 +74,13 @@ arguments are paths to the paired-end reads.
 As we have parsed commandline arguments already, we clear them out before
 calling bioshake. Shake will parse the command line arguments and alter the
 targets it build otherwise. Note that the maximum number of threads allowed has
-to be specified to bioshake; above we defined the number of threads for
-individual programs to use by default, whereas this threads parameter controls
-the maximum allowed at any one time and so must at least exceed the maximum
-number of threads used by a single job.
+to be specified to bioshake in two ways: the number of threads for each stage,
+and the maximum number of concurrent threads in total. Threads per job can be
+specified by giving a Threads instance to each stage, or at a higher level. Here
+we give Threads 1, meaning stages run single threaded, and limit the number of
+concurrent threads to 2 in total.
 
->   withArgs [] $ bioshake 1 shakeOptions $ do
+>   withArgs [] $ give (Threads 1) $ bioshake 2 shakeOptions $ do
 
 bioshake, like shakeArgs, expects Shake Rules. We can therefore want thing and
 define standard Shake Rules as normal. In this case we want our output vcf file,
@@ -108,8 +103,9 @@ first applied to each individual sample. The samples are then pooled and called
 as a group using platypus.
 
 >       let aligned = map (\s -> s :-> align
->                                  :-> mappedOnly
+>                                  :-> sam2Bam
+>                                  :-> fixMates
 >                                  :-> sortBam
->                                  :-> deDup
+>                                  :-> markDups
 >                                  :-> addRGLine (show s)) samples in
 >       compile $ withAll aligned :-> call :-> out ["calls.vcf"]
