@@ -37,6 +37,11 @@ class Compilable a where
   compile :: Given Resource => a -> Compiler ()
   compile = return $ return mempty
 
+compileAndWant :: (Pathable a, Compilable a, Given Resource) => a -> Compiler ()
+compileAndWant a = do
+  compile a
+  lift $ want (paths a)
+
 -- | A pipeline @a :-> b@ is 'Compilable' to 'Rules' if @a@ is 'Compilable' and
 -- we can generate an 'Action' to build @a:->b@ (i.e., @a:->b@ is 'Buildable').
 -- This generates a 'Rules' which builds the 'paths' of @a:->b@ and 'need's the
