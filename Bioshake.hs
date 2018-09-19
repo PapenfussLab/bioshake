@@ -23,6 +23,7 @@ module Bioshake( module Types
                , bioshake
                , out
                , Out
+               , split
                , withAll
                , withPair) where
 
