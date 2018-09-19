@@ -13,10 +13,10 @@ import           Data.List
 import           Development.Shake
 import           Development.Shake.FilePath
 
-batchWGS :: (Given Config, Show a, Pathable a) => a -> BatchWGS Config
+batchWGS :: (Given Config, Show a, Pathable a) => [a] -> BatchWGS Config
 batchWGS a = BatchWGS given a []
 
-batchWGSWithOpts :: (Given Config, Show a, Pathable a) => a -> [BatchOpts] -> BatchWGS Config
+batchWGSWithOpts :: (Given Config, Show a, Pathable a) => [a] -> [BatchOpts] -> BatchWGS Config
 batchWGSWithOpts = BatchWGS given
 
 instance (Pathable a, Show a, Referenced a, IsBam a) => Buildable (a :-> BatchWGS Config) where
@@ -24,10 +24,10 @@ instance (Pathable a, Show a, Referenced a, IsBam a) => Buildable (a :-> BatchWG
     let outs = paths p
     in withSubmit (buildBatchWGS (getCPUs c) b a outs) [Left c]
 
-batch :: (Given Config, Show a, Pathable a) => a -> Batch Config
+batch :: (Given Config, Show a, Pathable a) => [a] -> Batch Config
 batch a = Batch given a []
 
-batchWithOpts :: (Given Config, Show a, Pathable a) => a -> [BatchOpts] -> Batch Config
+batchWithOpts :: (Given Config, Show a, Pathable a) => [a] -> [BatchOpts] -> Batch Config
 batchWithOpts = Batch given
 
 instance (Pathable a, Show a, Referenced a, IsBam a, Capture a) => Buildable (a :-> Batch Config) where

@@ -21,23 +21,23 @@ instance Show BatchOpts where
   show DropLowCoverage = "--drop-low-coverage"
 
 data BatchWGS c where
-  BatchWGS :: (Show a, Pathable a) => c -> a -> [BatchOpts] -> BatchWGS c
+  BatchWGS :: (Show a, Pathable a) => c -> [a] -> [BatchOpts] -> BatchWGS c
 deriving instance Show c => Show (BatchWGS c)
 
 data Batch c where
-  Batch :: (Show a, Pathable a) => c -> a -> [BatchOpts] -> Batch c
+  Batch :: (Show a, Pathable a) => c -> [a] -> [BatchOpts] -> Batch c
 deriving instance Show c => Show (Batch c)
 
 class IsCNVkit c
 
 buildBatchWGS t (BatchWGS _ norms opts) a [out] = do
   let inputs = paths a
-      normPaths = paths norms
+      normPaths = concatMap paths norms
   lift $ need normPaths
   withTempDirectory' "tmp" "cnvkit" $ \tmpDir -> do
     () <- run "cnvkit.py batch"
       inputs
-      ("-n" : normPaths)
+      (if length normPaths > 0 then "-n" : normPaths else [])
       "-m wgs"
       ["-f", getRef a]
       ["--annotate", annotations a]
@@ -54,12 +54,12 @@ $(makeSingleTypes ''BatchWGS [''IsCNVkit] [])
 
 buildBatch t (Batch _ norms opts) a [out] = do
   let inputs = paths a
-      normPaths = paths norms
+      normPaths = concatMap paths norms
   lift $ need normPaths
   withTempDirectory' "tmp" "cnvkit" $ \tmpDir -> do
     () <- run "cnvkit.py batch"
       inputs
-      ("-n" : normPaths)
+      (if length normPaths > 0 then "-n" : normPaths else [])
       ["--targets", getBED a]
       ["-f", getRef a]
       ["--annotate", annotations a]
