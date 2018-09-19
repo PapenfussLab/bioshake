@@ -17,6 +17,19 @@ output for the stage that follows. Some features of Bioshake pipelines are
     requires a sorted BAM file, it will be a type error to construct a pipeline that
     feeds it an unsorted BAM file. This allows many pipeline errors to be caught at
     compile time rather than runtime.
+    
+## Quickstart
+
+This repository includes [Nix](http://nixos.org/nix) expressions for easy
+building. To use, install Nix, clone this repository, then a shell containing
+the necessary GHC environment for building Bioshake can be dropped into with
+"nix-shell". To compile and execute the example pipeline, the following commands
+can be used:
+
+ 
+    nix-shell --command 'ghc -o examples/simple examples/simple.lhs -O'
+    cd examples
+    nix-shell -p bwa samtools platypus --command "./simple *.fq"
 
 ## How to use
 
