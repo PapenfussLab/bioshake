@@ -14,47 +14,55 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Bioshake
                      , Bioshake.ADTEx
-                     , Bioshake.Bedtools
                      , Bioshake.BWA
+                     , Bioshake.Bedtools
+                     , Bioshake.CNVkit
                      , Bioshake.Cluster.ADTEx
-                     , Bioshake.Cluster.Bedtools
                      , Bioshake.Cluster.BWA
+                     , Bioshake.Cluster.Bedtools
                      , Bioshake.Cluster.CNVkit
                      , Bioshake.Cluster.Cutadapt
                      , Bioshake.Cluster.FREEC
                      , Bioshake.Cluster.Gridss
                      , Bioshake.Cluster.Kallisto
+                     , Bioshake.Cluster.Hisat2
                      , Bioshake.Cluster.Octopus
                      , Bioshake.Cluster.Picard
                      , Bioshake.Cluster.Platypus
                      , Bioshake.Cluster.Samtools
                      , Bioshake.Cluster.Sequenza
                      , Bioshake.Cluster.SnpEff
+                     , Bioshake.Cluster.SomaticSniper
+                     , Bioshake.Cluster.Strelka
                      , Bioshake.Cluster.Torque
                      , Bioshake.Cluster.Varscan
-                     , Bioshake.CNVkit
                      , Bioshake.Cutadapt
-                     , Bioshake.Facets
+                     , Bioshake.EDAM
                      , Bioshake.FREEC
+                     , Bioshake.Facets
                      , Bioshake.Gridss
                      , Bioshake.Kallisto
+                     , Bioshake.Hisat2
                      , Bioshake.Octopus
                      , Bioshake.Picard
                      , Bioshake.Platypus
                      , Bioshake.Samtools
                      , Bioshake.Sequenza
                      , Bioshake.SnpEff
-                     , Bioshake.Tags
+                     , Bioshake.SomaticSniper
+                     , Bioshake.Strelka
                      , Bioshake.TH
+                     , Bioshake.Tags
                      , Bioshake.Types
                      , Bioshake.Varscan
   other-modules:       Bioshake.Internal.ADTEx
-                     , Bioshake.Internal.Bedtools
                      , Bioshake.Internal.BWA
+                     , Bioshake.Internal.Bedtools
                      , Bioshake.Internal.CNVkit
                      , Bioshake.Internal.Cutadapt
-                     , Bioshake.Internal.Facets
+                     , Bioshake.Internal.Hisat2
                      , Bioshake.Internal.FREEC
+                     , Bioshake.Internal.Facets
                      , Bioshake.Internal.Gridss
                      , Bioshake.Internal.Kallisto
                      , Bioshake.Internal.Octopus
@@ -63,6 +71,8 @@ library
                      , Bioshake.Internal.Samtools
                      , Bioshake.Internal.Sequenza
                      , Bioshake.Internal.SnpEff
+                     , Bioshake.Internal.SomaticSniper
+                     , Bioshake.Internal.Strelka
                      , Bioshake.Internal.Varscan
 
   other-extensions:    DataKinds
