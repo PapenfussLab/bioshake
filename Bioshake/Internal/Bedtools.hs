@@ -17,14 +17,22 @@ data FilterCapture c = FilterCapture c deriving Show
 buildBedtoolsCapture _ a@(paths -> [input]) [out] = do
   let bed = getBED a
   lift $ need [bed]
-  withTempDirectory' "tmp" "bedtools" $ \tmpDir -> do
-    let intersection = tmpDir </> "intersection.vcf"
-    () <- run "bedtools intersect"
-      ["-a", input]
-      ["-b", bed]
-      [">", intersection]
-    inhdr <- liftIO $ unlines . filter (\(l:_) -> l == '#') . lines <$> readFile input
-    intcnt <- liftIO $ readFile intersection
-    liftIO $ writeFile out (inhdr ++ intcnt)
+  run "bedtools intersect"
+    ["-a", input]
+    ["-b", bed]
+    "-header"
+    [">", out]
 
 $(makeSingleTypes ''FilterCapture [''IsVCF, ''CaptureOnly] [])
+
+data FilterCaptureBam c = FilterCaptureBam c deriving Show
+
+buildBedtoolsCaptureBam _ a@(paths -> [input]) [out] = do
+  let bed = getBED a
+  lift $ need [bed]
+  run "bedtools intersect"
+    ["-a", input]
+    ["-b", bed]
+    [">", out]
+
+$(makeSingleTypes ''FilterCaptureBam [''IsBam, ''CaptureOnly] [])

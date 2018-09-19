@@ -11,4 +11,5 @@ import           Bioshake.TH
 import           Development.Shake
 import           Development.Shake.FilePath
 
-$(makeSingleCluster ''FilterCapture [''Capture, ''IsVCF] 'buildBedtoolsCapture)
+$(makeSingleCluster ''FilterCaptureBam [''Capture, ''IsVCF] 'buildBedtoolsCaptureBam)
+$(makeSingleCluster ''FilterCapture [''Capture, ''IsBam] 'buildBedtoolsCapture)
