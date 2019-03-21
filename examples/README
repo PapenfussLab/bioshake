@@ -1,7 +1,14 @@
-This is an example pipeline and data using bioshake to align and call variants.
-The fastq files are simulated from the reference and included in this directory.
-Note that the simulated reads don't contain any variants, so the resulting vcf
-file should be empty. You can run the sample pipeline by:
+This is an example pipeline and data using bioshake to align and call
+variants. The fastq files are simulated from the reference and
+included in this directory with some variants added.
+
+Git-lfs is required to fetch the sequences from the repository (other
+tools are also required to run, see [requirements](#requirements)).
+After git-lfs is installed, the sequences can be fetched with
+
+  git lfs fetch
+
+The sample pipeline can then be run by:
 
   runhaskell simple.lhs *.fq
 
@@ -11,3 +18,13 @@ are using stack you can:
   stack setup
   stack build
   stack runhaskell simple.lhs *.fq
+
+There are 3 variants that should be called at positions 14881
+(sample2), 29881 (sample1 and sample2) and 44881 (sample 1).
+
+# Requirements
+
+- [git-lfs](https://git-lfs.github.com/)
+- [BWA](https://bio-bwa.sourceforge.net/)
+- [Samtools](https://github.com/samtools/samtools)
+- [platypus](https://github.com/andyrimmer/Platypus)
