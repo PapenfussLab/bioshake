@@ -1,6 +1,8 @@
-This is an example pipeline and data using bioshake to align and call
-variants. The fastq files are simulated from the reference and
-included in this directory with some variants added.
+# simple.lhs
+
+simple.lhs presents an example workflow using BioShake to align and call
+variants. The fastq files are simulated from the reference with some synthetic
+variants and included in this directory.
 
 Git-lfs is required to fetch the sequences from the repository (other
 tools are also required to run, see [requirements](#requirements)).
@@ -21,6 +23,15 @@ are using stack you can:
 
 There are 3 variants that should be called at positions 14881
 (sample2), 29881 (sample1 and sample2) and 44881 (sample 1).
+
+# nextflow-blast.lhs
+
+This workflow translates a [nextflow
+example](https://www.nextflow.io/example3.html) to BioShake. The example shards
+a FastA file into a number of chunks which are aligned against a reference
+database using Blast. The top results are then collected into a final file. This
+workflow is an example of a scatter–gather type of workflow. Data is not
+provided in this repository.
 
 # Requirements
 
