@@ -16,6 +16,7 @@ module Bioshake( module Types
                , module Data.Reflection
                , module Tags
                , All(..)
+               , On(..)
                , Referenced(..)
                , Capture(..)
                , ignoringIOErrors

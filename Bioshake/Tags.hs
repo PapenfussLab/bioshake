@@ -41,6 +41,7 @@ class IsBam a
 class IsBcf a
 class IsBed a
 class IsCSV a
+class IsFastA a
 class IsFastQ a
 class IsGff a
 class IsMPileup a
@@ -52,7 +53,8 @@ class IsTGZ a
 class IsCov a
 
 
-allTags = [''IsFastQ
+allTags = [''IsFastA
+          ,''IsFastQ
           ,''DeDuped
           ,''DupsMarked
           ,''HasRG
