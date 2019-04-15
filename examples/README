@@ -24,18 +24,22 @@ are using stack you can:
 There are 3 variants that should be called at positions 14881
 (sample2), 29881 (sample1 and sample2) and 44881 (sample 1).
 
-# nextflow-blast.lhs
-
-This workflow translates a [nextflow
-example](https://www.nextflow.io/example3.html) to BioShake. The example shards
-a FastA file into a number of chunks which are aligned against a reference
-database using Blast. The top results are then collected into a final file. This
-workflow is an example of a scatter–gather type of workflow. Data is not
-provided in this repository.
-
-# Requirements
+## Requirements
 
 - [git-lfs](https://git-lfs.github.com/)
 - [BWA](https://bio-bwa.sourceforge.net/)
 - [Samtools](https://github.com/samtools/samtools)
 - [platypus](https://github.com/andyrimmer/Platypus)
+
+# nextflow-blast.lhs
+
+This workflow translates a [nextflow
+example](https://github.com/nextflow-io/blast-example) to BioShake. The example
+shards a FastA file into a number of chunks which are aligned against a
+reference database using Blast. The top results are then collected into a final
+file. This workflow is an example of a scatter–gather type of workflow. Data is
+not provided in this repository.
+
+## Requirements
+
+- [blast](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
