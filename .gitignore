@@ -1,1 +1,7 @@
+.envrc
+.gitignore
 .stack-work/*
+doc/*
+*.dyn*
+*.o
+*.hi
