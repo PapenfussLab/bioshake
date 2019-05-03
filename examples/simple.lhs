@@ -1,9 +1,7 @@
-This is a very simple pipeline to demonstrate how to specify pipelines using the
+This is a simple workflow to demonstrate how to specify workflows using the
 bioshake framework. It will accept pairs of fastq files from the command line,
 align them against a reference sequence with BWA, then call variants on all
 asamples using the platypus variant caller.
-
-First, import some stuff...
 
 > import Bioshake
 > import Control.Monad
@@ -39,9 +37,9 @@ and that do not require building
 
 > instance Compilable Sample
 
-Bioshake uses type classes to encode properties about stages in the pipeline.
+Bioshake uses type classes to encode properties about stages in the workflow.
 The first property we're going to declare is that these samples are paired end
-samples. We also will declare that the input files are FastQ files.
+reads. We also will declare that the input files are FastQ files.
 
 > instance PairedEnd Sample
 > instance IsFastQ Sample
@@ -54,7 +52,8 @@ wthe reference and the short name of the reference:
 >   getRef _ = "ref.fa"
 >   name _ = "SL1344"
 
-Finally, we describe how to get the paths for a Sample:
+Finally, we describe how to get the paths for a Sample, which in this case is
+extracted from our Sample datatype:
 
 > instance Pathable Sample where
 >   paths (Sample a b) = [a, b]
@@ -63,7 +62,6 @@ Command line arguments are naïvly parsed: we simply assume each pair of
 arguments are paths to the paired-end reads.
 
 > parseArgs = map (\[a, b] -> Sample a b) . chunksOf 2
-
 > main = do
 >   args <- getArgs
 >   when (null args || length args `mod` 2 /= 0) $ do
@@ -71,14 +69,11 @@ arguments are paths to the paired-end reads.
 >     exitFailure
 >   let samples = parseArgs args
 
-As we have parsed commandline arguments already, we clear them out before
-calling bioshake. Shake will parse the command line arguments and alter the
-targets it build otherwise. Note that the maximum number of threads allowed has
-to be specified to bioshake in two ways: the number of threads for each stage,
-and the maximum number of concurrent threads in total. Threads per job can be
-specified by giving a Threads instance to each stage, or at a higher level. Here
-we give Threads 1, meaning stages run single threaded, and limit the number of
-concurrent threads to 2 in total.
+The number of threads used has to be specified to bioshake in two ways: the
+number of threads used for each stage, and the maximum number of concurrent
+threads in total. Threads per job can be specified by giving a Threads instance
+to each stage, or at a higher level. Here we give Threads 1, meaning stages run
+single threaded, and limit the maximum number of concurrent threads to 2 in total.
 
 >   withArgs [] $ give (Threads 1) $ bioshake 2 shakeOptions $ do
 
@@ -94,16 +89,15 @@ In addition to that, we will bring into scope the rules for indexing bamfiles
 >     B.indexRules
 >     S.indexRules
 
-Finally, we compile our pipeline down to Shake Rules.
+Finally, we compile our workflow down to Shake Rules.
 
 >     compileRules $
 
-We have one simple pipelines in this case. Simple alignment and processing is
-first applied to each individual sample. The samples are then pooled and called
-as a group using platypus.
+We have one simple workflow in this case. Alignment and processing is first
+applied to each individual sample. The samples are then pooled and called as a
+group using platypus.
 
 >       let aligned = map (\s -> s :-> align
->                                  :-> sam2Bam
 >                                  :-> fixMates
 >                                  :-> sortBam
 >                                  :-> markDups

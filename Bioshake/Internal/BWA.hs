@@ -67,6 +67,7 @@ buildBWA t (Align _ opts) a@(paths -> inputs) [out] =
         [getRef a]
         inputs
         (map show opts)
+        "| samtools view -b"
         ">" out
 
-$(makeSingleTypes ''Align [''IsSam, ''NameSorted] [])
+$(makeSingleTypes ''Align [''IsBam, ''NameSorted] [])
