@@ -31,6 +31,8 @@ can be used:
     cd examples
     nix-shell -p bwa samtools platypus --command "./simple *.fq"
 
+Note that the repository must be cloned with `git lfs` installed for
+the example data to be downloaded, see: [examples/README](examples/README).
 ## How to use
 
 Begin with something like this:
